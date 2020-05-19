@@ -92,7 +92,7 @@ namespace MMT.UI
             if (e.Key == Key.Delete)
             {
                 string selectedProfile = lstProfiles.SelectedItem.ToString();
-                if (await MessageHelper.Confirm(string.Format("Delete profile: {0}?", selectedProfile)) == MessageDialogResult.Affirmative)
+                if (await MessageHelper.Confirm(string.Format("Delete profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
                 {
                     _profileManager.Delete(selectedProfile);
                     LoadProfiles();

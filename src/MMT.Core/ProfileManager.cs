@@ -26,9 +26,9 @@ namespace MMT.Core
         public void Save(string profileName)
         {
             if (string.IsNullOrWhiteSpace(profileName))
-                throw new ArgumentNullException("Profile name is required.");
+                throw new ArgumentException("Profile name is required.");
 
-            if (GetProfiles().Any(p => p.Equals(profileName)))
+            if (GetProfiles().Any(p => p.ToUpper().Equals(profileName.ToUpper())))
                 throw new ArgumentException("This profile already exists.");
 
             string path = Path.Combine(_customProfilesPath, profileName);
