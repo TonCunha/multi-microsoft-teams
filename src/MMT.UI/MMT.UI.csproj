@@ -5,7 +5,14 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <AssemblyName>Multi MS Teams</AssemblyName>
-    <ApplicationIcon>Taskbar.ico</ApplicationIcon>        
+    <ApplicationIcon>Taskbar.ico</ApplicationIcon>
+    <Authors>Cleriton Cunha</Authors>
+    <Company />
+    <RepositoryUrl>https://github.com/TonCunha/multi-microsoft-teams</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/TonCunha/multi-microsoft-teams</PackageProjectUrl>
+    <Copyright>Cleriton Cunha</Copyright>
+    <Description>Launcher to manage profiles and open multiple instances of Microsoft Teams</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>        
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +21,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MMT.Core\MMT.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
