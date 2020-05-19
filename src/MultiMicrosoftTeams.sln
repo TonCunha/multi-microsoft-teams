@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMT.UI", "MMT.UI\MMT.UI.csproj", "{FC20E36E-A82E-47FE-905D-CD7D413FD282}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMT.Core", "MMT.Core\MMT.Core.csproj", "{492C3681-A476-44AB-BAAE-2C4763A00E7C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FC20E36E-A82E-47FE-905D-CD7D413FD282}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC20E36E-A82E-47FE-905D-CD7D413FD282}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC20E36E-A82E-47FE-905D-CD7D413FD282}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC20E36E-A82E-47FE-905D-CD7D413FD282}.Release|Any CPU.Build.0 = Release|Any CPU
+		{492C3681-A476-44AB-BAAE-2C4763A00E7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{492C3681-A476-44AB-BAAE-2C4763A00E7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{492C3681-A476-44AB-BAAE-2C4763A00E7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{492C3681-A476-44AB-BAAE-2C4763A00E7C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4AA582FA-F262-4A47-8686-33D6EE55220B}
+	EndGlobalSection
+EndGlobal

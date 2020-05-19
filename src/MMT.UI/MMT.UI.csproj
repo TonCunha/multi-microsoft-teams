@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>Multi MS Teams</AssemblyName>
+    <ApplicationIcon>Taskbar.ico</ApplicationIcon>        
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0821" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MMT.Core\MMT.Core.csproj" />
+  </ItemGroup>
+
+</Project>
