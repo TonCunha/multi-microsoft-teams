@@ -31,8 +31,8 @@ namespace MMT.Core
             if (GetProfiles().Any(p => p.ToUpper().Equals(profileName.ToUpper())))
                 throw new ArgumentException("This profile already exists.");
 
-            string path = Path.Combine(_customProfilesPath, profileName);
-            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(Path.Combine(_customProfilesPath, profileName));
+            Directory.CreateDirectory(Path.Combine(_customProfilesPath, profileName, "Desktop"));
         }
 
         public void Delete(string profileName)
