@@ -8,7 +8,18 @@
         mc:Ignorable="d"
         Title="Multi Microsoft Teams" Height="250" Width="400" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Grid>
-        <TabControl Grid.ColumnSpan="2" Grid.RowSpan="2"  Name="tbcMain">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" HorizontalAlignment="Right" Margin="10">
+            <Hyperlink NavigateUri="https://github.com/TonCunha/multi-microsoft-teams" RequestNavigate="Hyperlink_RequestNavigate">
+                Github
+            </Hyperlink>
+        </TextBlock>
+
+        <TabControl Grid.RowSpan="2"  Name="tbcMain">
             <TabItem Name="tbiProfiles" Header="Profiles">
                 <Grid>
                     <Grid.RowDefinitions>
