@@ -38,6 +38,7 @@ namespace MMT.Core
         public void Delete(string profileName)
         {
             string path = Path.Combine(_customProfilesPath, profileName);
+
             if (Directory.Exists(path))
                 Directory.Delete(path);
         }
