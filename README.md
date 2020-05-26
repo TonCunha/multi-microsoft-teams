@@ -6,11 +6,15 @@ Launcher to manage profiles and open multiple instances of Microsoft Teams deskt
 * .NET Core
 * WPF
 * [MahApps](https://mahapps.com/)
+* [WPF NotifyIcon](https://github.com/hardcodet/wpf-notifyicon)
 
 ## Prerequisites
 
 * Microsoft Teams
 * .NET Core
+
+## Releases
+You can download the latest version in [Releases](https://github.com/TonCunha/multi-microsoft-teams/releases)
 
 ## Deployment
 
@@ -31,12 +35,9 @@ Launcher to manage profiles and open multiple instances of Microsoft Teams deskt
 ### Configure Multi Teams
 1. Open Multi Microsoft Teams
 2. Create all the profiles you need by clicking the New profile button
-3. Select a profile or check All profiles and Launch Teams
+3. Select a profile and Launch Teams
 4. Uncheck the options auto-start application in all Microsoft Teams
-
-## After initial configurations
-1. Open Multi Microsoft Teams
-2. Select a profile or check All profiles and Launch Teams
+5. You can check Auto Start option to launch all profiles when Windows starts
 
 ## Authors
 

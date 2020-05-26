@@ -43,5 +43,21 @@ namespace MMT.Core
                 return @"AppData\Local\Microsoft\Teams\Update.exe";
             }
         }
+
+        public static string StartupApplications
+        {
+            get
+            {
+                return @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
+            }
+        }
+
+        public static string AppName
+        {
+            get
+            {
+                return "Multi MS Teams";
+            }
+        }
     }
 }

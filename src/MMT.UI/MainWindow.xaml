@@ -3,23 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"      
-        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"                
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"                                
         xmlns:local="clr-namespace:MMT.UI"                  
         mc:Ignorable="d"
-        Title="Multi Microsoft Teams" Height="250" Width="400" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+        Title="Multi Microsoft Teams" Height="250" Width="400" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" StateChanged="MetroWindow_StateChanged">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition/>
         </Grid.RowDefinitions>
-
+        
         <TextBlock Grid.Row="0" HorizontalAlignment="Right" Margin="10">
             <Hyperlink NavigateUri="https://github.com/TonCunha/multi-microsoft-teams" RequestNavigate="Hyperlink_RequestNavigate">
                 Github
             </Hyperlink>
         </TextBlock>
 
-        <TabControl Grid.RowSpan="2"  Name="tbcMain">
+        <TabControl Grid.RowSpan="1"  Name="tbcMain">
             <TabItem Name="tbiProfiles" Header="Profiles">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -32,7 +31,7 @@
                     <Grid Grid.Row="1" Margin="5" Height="Auto">
                         <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
                             <Button Name="btnLaunchTeams"  Width="100" Content="Launch Teams" Click="BtnLaunchTeams_Click"/>
-                            <CheckBox Name="chkAllProfiles" Margin="8,0,0,0" HorizontalAlignment="Left" Content="All profiles"/>
+                            <CheckBox Name="chkAutoStart" Margin="8,0,0,0" HorizontalAlignment="Left" Content="Auto start" Click="ChkAutoStart_Click"/>
                         </StackPanel>
                         <Button Name="btnNewProfile" HorizontalAlignment="Right" Width="100" Content="New profile" Click="BtnNewProfile_Click"/>
                     </Grid>

@@ -40,7 +40,7 @@ namespace MMT.Core
             string path = Path.Combine(_customProfilesPath, profileName);
 
             if (Directory.Exists(path))
-                Directory.Delete(path);
+                Directory.Delete(path, true);
         }
     }
 }
