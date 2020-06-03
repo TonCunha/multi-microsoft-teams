@@ -11,10 +11,10 @@
     <RepositoryUrl>https://github.com/TonCunha/multi-microsoft-teams</RepositoryUrl>
     <PackageProjectUrl>https://github.com/TonCunha/multi-microsoft-teams</PackageProjectUrl>
     <Copyright>Cleriton Cunha</Copyright>
-    <Description>Launcher to manage profiles and open multiple instances of Microsoft Teams</Description>
+    <Description>Launcher to manage profiles and open multiple instances of Microsoft Teams desktop version. It's compatible with many accounts and organizations (tenants).</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <AssemblyVersion>1.0.0.1</AssemblyVersion>
-    <FileVersion>1.0.0.1</FileVersion>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
+    <FileVersion>1.0.0.2</FileVersion>
     <Version>1.0.0.1</Version>
     <Win32Resource />        
   </PropertyGroup>
