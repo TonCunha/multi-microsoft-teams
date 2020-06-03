@@ -2,6 +2,11 @@
 
 Launcher to manage profiles and open multiple instances of Microsoft Teams desktop version. It's compatible with many accounts and organizations (tenants).
 
+<p align="center">
+<img src="https://user-images.githubusercontent.com/18350851/83556554-7c1e1100-a4e6-11ea-828f-570fc44fa77f.png">
+<img src="https://user-images.githubusercontent.com/18350851/83556948-2c8c1500-a4e7-11ea-8b89-6ae092e3b5b0.png">
+</p>
+
 ## Built With
 * .NET Core
 * WPF
