@@ -7,6 +7,12 @@ Launcher to manage profiles and open multiple instances of Microsoft Teams deskt
 <img src="https://user-images.githubusercontent.com/18350851/83556948-2c8c1500-a4e7-11ea-8b89-6ae092e3b5b0.png">
 </p>
 
+## Support
+
+If this project help you, you can buy me a coffee :)
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=QRGN6P42KKBXN&currency_code=USD&source=url)
+
 ## Built With
 * .NET Core
 * WPF
