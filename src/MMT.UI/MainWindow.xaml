@@ -26,7 +26,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ListBox Grid.Row="0" Name="lstProfiles" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp"/>
+                    <ListBox Grid.Row="0" Name="lstProfiles" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" MouseDoubleClick="LstProfiles_MouseDoubleClick" />
 
                     <Grid Grid.Row="1" Margin="5" Height="Auto">
                         <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">

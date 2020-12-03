@@ -42,5 +42,17 @@ namespace MMT.Core
             if (Directory.Exists(path))
                 Directory.Delete(path, true);
         }
+
+        public void Enable(string profileName)
+        {
+            if (Directory.Exists(Path.Combine(_customProfilesPath, profileName)))
+                Directory.Move(Path.Combine(_customProfilesPath, profileName), Path.Combine(_customProfilesPath, profileName.Substring(11)));
+        }
+
+        public void Disable(string profileName)
+        {
+            if (Directory.Exists(Path.Combine(_customProfilesPath, profileName)))
+                Directory.Move(Path.Combine(_customProfilesPath, profileName), Path.Combine(_customProfilesPath, $"[Disabled] {profileName}"));
+        }
     }
 }
