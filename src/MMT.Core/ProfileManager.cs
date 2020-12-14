@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -8,6 +9,7 @@ namespace MMT.Core
     public class ProfileManager
     {
         private readonly string _customProfilesPath;
+        private string _disabledProfilesPath = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "disabled-profiles.txt");
 
         public ProfileManager()
         {
@@ -20,7 +22,19 @@ namespace MMT.Core
             if (!Directory.Exists(_customProfilesPath))
                 Directory.CreateDirectory(_customProfilesPath);
 
-            return Directory.GetDirectories(_customProfilesPath).Select(p => new DirectoryInfo(p).Name).ToList();
+            var allProfiles = Directory.GetDirectories(_customProfilesPath).Select(p => new DirectoryInfo(p).Name).ToList();
+            var disabledProfiles = GetDisabledProfiles();
+
+            var profiles = new List<string>();
+            foreach (var profile in allProfiles)
+            {
+                if (disabledProfiles.Any(p => p == profile))
+                    profiles.Add($"[Disabled] {profile}");
+                else
+                    profiles.Add(profile);
+            }
+
+            return profiles;
         }
 
         public void Save(string profileName)
@@ -43,16 +57,40 @@ namespace MMT.Core
                 Directory.Delete(path, true);
         }
 
+        private List<string> GetDisabledProfiles()
+        {
+            var profiles = new List<string>();
+            if (File.Exists(_disabledProfilesPath))
+            {
+                using var sr = new StreamReader(_disabledProfilesPath);
+                while (!sr.EndOfStream)
+                {
+                    profiles.Add(sr.ReadLine());
+                }
+            }
+
+            return profiles;
+        }
+
+
         public void Enable(string profileName)
         {
-            if (Directory.Exists(Path.Combine(_customProfilesPath, profileName)))
-                Directory.Move(Path.Combine(_customProfilesPath, profileName), Path.Combine(_customProfilesPath, profileName.Substring(11)));
+            profileName = profileName.Replace("[Disabled] ", string.Empty);
+            var disabledProfiles = GetDisabledProfiles();
+            disabledProfiles.Remove(profileName);
+            using var sw = new StreamWriter(_disabledProfilesPath);
+            disabledProfiles.ForEach(p => sw.WriteLine(p));
         }
 
         public void Disable(string profileName)
         {
-            if (Directory.Exists(Path.Combine(_customProfilesPath, profileName)))
-                Directory.Move(Path.Combine(_customProfilesPath, profileName), Path.Combine(_customProfilesPath, $"[Disabled] {profileName}"));
+            var disabledProfiles = GetDisabledProfiles();
+            if (!disabledProfiles.Any(p => p == profileName))
+            {
+                using var sw = new StreamWriter(_disabledProfilesPath);
+                disabledProfiles.ForEach(p => sw.WriteLine(p));
+                sw.WriteLine(profileName);                
+            }
         }
     }
 }

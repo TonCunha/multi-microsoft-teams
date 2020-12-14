@@ -172,21 +172,13 @@ namespace MMT.UI
 
         private async void LstProfiles_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            try
-            {
-                string selectedProfile = lstProfiles.SelectedItem.ToString();
+            string selectedProfile = lstProfiles.SelectedItem.ToString();
+            if (selectedProfile.StartsWith("[Disabled]"))
+                _profileManager.Enable(selectedProfile);
+            else if (await MessageHelper.Confirm(string.Format("Disable profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
+                _profileManager.Disable(selectedProfile);
 
-                if (selectedProfile.StartsWith("[Disabled]"))
-                    _profileManager.Enable(selectedProfile);
-                else if (await MessageHelper.Confirm(string.Format("Disable profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
-                    _profileManager.Disable(selectedProfile);
-
-                LoadProfiles();
-            }
-            catch
-            {
-                MessageHelper.Info("It was not possible to disable / enable the profile. Close all instances of Microsoft Teams and try again.");
-            }
+            LoadProfiles();
         }
     }
 }

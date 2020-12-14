@@ -19,7 +19,7 @@ namespace MMT.Core
 
         public void AddApplicationInStartup(string name)
         {
-            _registryKey.SetValue(name, Process.GetCurrentProcess().MainModule.FileName);  //AppDomain.CurrentDomain.BaseDirectory);
+            _registryKey.SetValue(name, Process.GetCurrentProcess().MainModule.FileName);
         }
 
         public void RemoveApplicationFromStartup(string appName)
