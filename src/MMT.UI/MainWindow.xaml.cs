@@ -67,7 +67,7 @@ namespace MMT.UI
         {
             Show();
             WindowState = WindowState.Normal;
-            MetroWindow_StateChanged(sender, e);            
+            MetroWindow_StateChanged(sender, e);
         }
 
         private void AutoStartCheck()
@@ -83,9 +83,10 @@ namespace MMT.UI
                 var thread = new Thread(() =>
                 {
                     foreach (var item in lstProfiles.Items)
-                        _teamsLauncher.Start(item.ToString());
+                        if (!item.ToString().StartsWith("[Disabled]"))
+                            _teamsLauncher.Start(item.ToString());
                 });
-                thread.Start();                               
+                thread.Start();
             }
         }
 
@@ -100,7 +101,7 @@ namespace MMT.UI
             else
             {
                 _tray.Visibility = Visibility.Collapsed;
-                Visibility = Visibility.Visible;                
+                Visibility = Visibility.Visible;
             }
         }
 
@@ -141,7 +142,7 @@ namespace MMT.UI
         {
             try
             {
-                if (lstProfiles.SelectedItem != null)
+                if (lstProfiles.SelectedItem != null && !lstProfiles.SelectedItem.ToString().StartsWith("[Disabled]"))
                     _teamsLauncher.Start(lstProfiles.SelectedItem.ToString());
             }
             catch (Exception ex)
@@ -167,6 +168,17 @@ namespace MMT.UI
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        }
+
+        private async void LstProfiles_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            string selectedProfile = lstProfiles.SelectedItem.ToString();
+            if (selectedProfile.StartsWith("[Disabled]"))
+                _profileManager.Enable(selectedProfile);
+            else if (await MessageHelper.Confirm(string.Format("Disable profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
+                _profileManager.Disable(selectedProfile);
+
+            LoadProfiles();
         }
     }
 }
