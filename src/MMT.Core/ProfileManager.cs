@@ -47,6 +47,7 @@ namespace MMT.Core
 
             Directory.CreateDirectory(Path.Combine(_customProfilesPath, profileName));
             Directory.CreateDirectory(Path.Combine(_customProfilesPath, profileName, "Desktop"));
+            Directory.CreateDirectory(Path.Combine(_customProfilesPath, profileName, "Downloads"));
         }
 
         public void Delete(string profileName)

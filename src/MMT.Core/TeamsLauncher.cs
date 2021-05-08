@@ -13,6 +13,9 @@ namespace MMT.Core
 
             string oldUserProfile = StaticResources.UserProfile;
             string userProfile = Path.Combine(StaticResources.LocalAppData, StaticResources.CustomProfiles, profileName);
+            Directory.CreateDirectory(userProfile);
+            Directory.CreateDirectory(Path.Combine(userProfile, "Desktop"));
+            Directory.CreateDirectory(Path.Combine(userProfile, "Downloads"));
             Environment.SetEnvironmentVariable("USERPROFILE", userProfile);
             string updateExePath = Path.Combine(oldUserProfile, StaticResources.UpdateExe);
             
