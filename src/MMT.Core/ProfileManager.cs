@@ -1,20 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
 namespace MMT.Core
 {
-    public class ProfileManager
+    public class ProfileManager : INotifyPropertyChanged
     {
+        private IList<string> _profiles;
+        public IList<string> Profiles => _profiles;
+
         private readonly string _customProfilesPath;
-        private string _disabledProfilesPath = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "disabled-profiles.txt");
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyRaised(string propertyname)
+        {
+            if (propertyname == nameof(Profiles))
+            {
+                _profiles = GetProfiles();
+            }
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyname));
+            }
+        }
 
         public ProfileManager()
         {
             string localAppData = StaticResources.LocalAppData;
             _customProfilesPath = Path.Combine(localAppData, StaticResources.CustomProfiles);
+            _profiles = GetProfiles();
         }
 
         public List<string> GetProfiles()
@@ -22,20 +39,14 @@ namespace MMT.Core
             if (!Directory.Exists(_customProfilesPath))
                 Directory.CreateDirectory(_customProfilesPath);
 
-            var allProfiles = Directory.GetDirectories(_customProfilesPath).Select(p => new DirectoryInfo(p).Name).ToList();
-            var disabledProfiles = GetDisabledProfiles();
-
-            var profiles = new List<string>();
-            foreach (var profile in allProfiles)
-            {
-                if (disabledProfiles.Any(p => p == profile))
-                    profiles.Add($"[Disabled] {profile}");
-                else
-                    profiles.Add(profile);
-            }
-
-            return profiles;
+            return Directory.GetDirectories(_customProfilesPath)
+                .Select(path => new DirectoryInfo(path).Name)
+                .Where(name => !String.IsNullOrWhiteSpace(name))
+                .Select(profile => IsDisabled(profile) ? $"[Disabled] {profile}" : profile)
+                .ToList();
         }
+
+        private string GetProfilePath (string profileName) => Path.Combine(_customProfilesPath, profileName);
 
         public void Save(string profileName)
         {
@@ -45,52 +56,43 @@ namespace MMT.Core
             if (GetProfiles().Any(p => p.ToUpper().Equals(profileName.ToUpper())))
                 throw new ArgumentException("This profile already exists.");
 
-            Directory.CreateDirectory(Path.Combine(_customProfilesPath, profileName));
-            Directory.CreateDirectory(Path.Combine(_customProfilesPath, profileName, "Desktop"));
-            Directory.CreateDirectory(Path.Combine(_customProfilesPath, profileName, "Downloads"));
+            var path = GetProfilePath(profileName);
+            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(Path.Combine(path, "Desktop"));
+            Directory.CreateDirectory(Path.Combine(path, "Downloads"));
+            
+            OnPropertyRaised(nameof(Profiles));
         }
 
         public void Delete(string profileName)
         {
-            string path = Path.Combine(_customProfilesPath, profileName);
+            string path = GetProfilePath(profileName);
 
             if (Directory.Exists(path))
                 Directory.Delete(path, true);
+
+            OnPropertyRaised(nameof(Profiles));
         }
 
-        private List<string> GetDisabledProfiles()
-        {
-            var profiles = new List<string>();
-            if (File.Exists(_disabledProfilesPath))
-            {
-                using var sr = new StreamReader(_disabledProfilesPath);
-                while (!sr.EndOfStream)
-                {
-                    profiles.Add(sr.ReadLine());
-                }
-            }
+        private string GetDisabledFilePath(string profileName) => Path.Combine(GetProfilePath(profileName), "MMT.disabled");
 
-            return profiles;
-        }
-
+        private bool IsDisabled(string profileName) => File.Exists(GetDisabledFilePath(profileName));
 
         public void Enable(string profileName)
         {
-            profileName = profileName.Replace("[Disabled] ", string.Empty);
-            var disabledProfiles = GetDisabledProfiles();
-            disabledProfiles.Remove(profileName);
-            using var sw = new StreamWriter(_disabledProfilesPath);
-            disabledProfiles.ForEach(p => sw.WriteLine(p));
+            if (IsDisabled(profileName))
+            {
+                File.Delete(GetDisabledFilePath(profileName));
+                OnPropertyRaised(nameof(Profiles));
+            }
         }
 
         public void Disable(string profileName)
         {
-            var disabledProfiles = GetDisabledProfiles();
-            if (!disabledProfiles.Any(p => p == profileName))
+            if (!IsDisabled(profileName))
             {
-                using var sw = new StreamWriter(_disabledProfilesPath);
-                disabledProfiles.ForEach(p => sw.WriteLine(p));
-                sw.WriteLine(profileName);                
+                using (File.Create(GetDisabledFilePath(profileName))) { }
+                OnPropertyRaised(nameof(Profiles));
             }
         }
     }

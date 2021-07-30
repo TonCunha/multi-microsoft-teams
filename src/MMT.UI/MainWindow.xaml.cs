@@ -27,6 +27,7 @@ namespace MMT.UI
             _profileManager = new ProfileManager();
             _teamsLauncher = new TeamsLauncher();
             _registryManager = new RegistryManager();
+            DataContext = _profileManager;
             ChangeTabVisibility();
             CreateTray();
             AutoStartCheck();
@@ -39,7 +40,6 @@ namespace MMT.UI
                 tbiProfiles.Visibility = Visibility.Visible;
                 tbiNewProfile.Visibility = Visibility.Collapsed;
                 tbcMain.SelectedItem = tbiProfiles;
-                LoadProfiles();
             }
             else
             {
@@ -49,13 +49,6 @@ namespace MMT.UI
             }
         }
 
-        private void LoadProfiles()
-        {
-            lstProfiles.Items.Clear();
-            List<string> profiles = _profileManager.GetProfiles();
-            profiles.ForEach(p => lstProfiles.Items.Add(p));
-        }
-
         private void CreateTray()
         {
             _tray = new TaskbarIcon();
@@ -63,12 +56,13 @@ namespace MMT.UI
             _tray.TrayMouseDoubleClick += TrayMouseDoubleClick;
             _tray.ToolTipText = StaticResources.AppName;
             _tray.Visibility = Visibility.Collapsed;
-            if (lstProfiles.Items?.Count > 0)
+            var items = DataContext as IList<string>;
+            if (items?.Count > 0)
             {
                 _tray.ContextMenu = new ContextMenu();
-                lstProfiles.Items.OfType<string>().ToList().ForEach((item) =>
+                items.ToList().ForEach((profile) =>
                 {
-                    var menuItem = new MenuItem() { Header = item };
+                    var menuItem = new MenuItem() { Header = profile };
                     menuItem.Click += MenuItem_Click;
                     _tray.ContextMenu.Items.Add(menuItem);
                 });
@@ -185,11 +179,13 @@ namespace MMT.UI
         {
             if (e.Key == Key.Delete)
             {
-                string selectedProfile = lstProfiles.SelectedItem.ToString();
-                if (await MessageHelper.Confirm(string.Format("Delete profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
+                for (int i = (lstProfiles.SelectedItems.Count - 1); i >= 0; i--)
                 {
-                    _profileManager.Delete(selectedProfile);
-                    LoadProfiles();
+                    var selectedProfile = lstProfiles.SelectedItems[i].ToString();
+                    if (await MessageHelper.Confirm(string.Format("Delete profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
+                    {
+                        _profileManager.Delete(selectedProfile);
+                    }
                 }
             }
         }
@@ -201,13 +197,15 @@ namespace MMT.UI
 
         private async void LstProfiles_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            string selectedProfile = lstProfiles.SelectedItem.ToString();
-            if (selectedProfile.StartsWith("[Disabled]"))
-                _profileManager.Enable(selectedProfile);
-            else if (await MessageHelper.Confirm(string.Format("Disable profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
-                _profileManager.Disable(selectedProfile);
-
-            LoadProfiles();
+            var item = sender as ListBoxItem;
+            if (item != null)
+            {
+                string selectedProfile = item.DataContext.ToString();
+                if (selectedProfile.StartsWith("[Disabled]"))
+                    _profileManager.Enable(selectedProfile);
+                else if (await MessageHelper.Confirm(string.Format("Disable profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
+                    _profileManager.Disable(selectedProfile);
+            }
         }
     }
 }

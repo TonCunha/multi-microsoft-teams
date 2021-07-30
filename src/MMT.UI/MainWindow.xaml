@@ -4,8 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"      
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"                                
-        xmlns:local="clr-namespace:MMT.UI"                  
-        mc:Ignorable="d"
+        xmlns:local="clr-namespace:MMT.UI" xmlns:core="clr-namespace:MMT.Core;assembly=MMT.Core" d:DataContext="{d:DesignInstance Type=core:ProfileManager}"
+                  mc:Ignorable="d"
         Title="Multi Microsoft Teams" Height="250" Width="400" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" StateChanged="MetroWindow_StateChanged">
     <Grid>
         <Grid.RowDefinitions>
@@ -26,7 +26,13 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ListBox Grid.Row="0" Name="lstProfiles" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" MouseDoubleClick="LstProfiles_MouseDoubleClick" SelectionMode="Multiple" />
+                    <ListBox Grid.Row="0" Name="lstProfiles" ItemsSource="{Binding Profiles}" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" SelectionMode="Multiple">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                <EventSetter Event="MouseDoubleClick" Handler="LstProfiles_MouseDoubleClick"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
 
                     <Grid Grid.Row="1" Margin="5" Height="Auto">
                         <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
