@@ -26,11 +26,12 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ListBox Grid.Row="0" Name="lstProfiles" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" MouseDoubleClick="LstProfiles_MouseDoubleClick" />
+                    <ListBox Grid.Row="0" Name="lstProfiles" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" MouseDoubleClick="LstProfiles_MouseDoubleClick" SelectionMode="Multiple" />
 
                     <Grid Grid.Row="1" Margin="5" Height="Auto">
                         <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-                            <Button Name="btnLaunchTeams"  Width="100" Content="Launch Teams" Click="BtnLaunchTeams_Click"/>
+                            <Button Name="btnLaunchTeams"  Width="100" Content="Launch Teams" Click="BtnLaunchTeams_Click" IsEnabled="{Binding ElementName=lstProfiles, Path=SelectedItems.Count}">
+                            </Button>
                             <CheckBox Name="chkAutoStart" Margin="8,0,0,0" HorizontalAlignment="Left" Content="Auto start" Click="ChkAutoStart_Click"/>
                         </StackPanel>
                         <Button Name="btnNewProfile" HorizontalAlignment="Right" Width="100" Content="New profile" Click="BtnNewProfile_Click"/>

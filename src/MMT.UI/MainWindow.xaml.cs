@@ -5,8 +5,10 @@ using MMT.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
 
@@ -61,6 +63,25 @@ namespace MMT.UI
             _tray.TrayMouseDoubleClick += TrayMouseDoubleClick;
             _tray.ToolTipText = StaticResources.AppName;
             _tray.Visibility = Visibility.Collapsed;
+            if (lstProfiles.Items?.Count > 0)
+            {
+                _tray.ContextMenu = new ContextMenu();
+                lstProfiles.Items.OfType<string>().ToList().ForEach((item) =>
+                {
+                    var menuItem = new MenuItem() { Header = item };
+                    menuItem.Click += MenuItem_Click;
+                    _tray.ContextMenu.Items.Add(menuItem);
+                });
+            }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            if (sender != null)
+            {
+                _teamsLauncher.Start(menuItem.Header.ToString());
+            }
         }
 
         private void TrayMouseDoubleClick(object sender, RoutedEventArgs e)
@@ -142,8 +163,16 @@ namespace MMT.UI
         {
             try
             {
-                if (lstProfiles.SelectedItem != null && !lstProfiles.SelectedItem.ToString().StartsWith("[Disabled]"))
-                    _teamsLauncher.Start(lstProfiles.SelectedItem.ToString());
+                if (lstProfiles.SelectedItems?.Count > 0)
+                {
+                    lstProfiles.SelectedItems.OfType<string>()
+                        .Where((item) => !item.StartsWith("[Disabled]"))
+                        .ToList()
+                        .ForEach((item) =>
+                    {
+                        _teamsLauncher.Start(item);
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -152,7 +181,7 @@ namespace MMT.UI
             }
         }
 
-        private async void LstProfiles_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        private async void LstProfiles_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Delete)
             {
