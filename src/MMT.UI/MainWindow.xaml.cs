@@ -51,11 +51,13 @@ namespace MMT.UI
 
         private void CreateTray()
         {
-            _tray = new TaskbarIcon();
-            _tray.Icon = Resource.Taskbar;
+            _tray = new TaskbarIcon
+            {
+                Icon = Resource.Taskbar,
+                ToolTipText = StaticResources.AppName,
+                Visibility = Visibility.Collapsed
+            };
             _tray.TrayMouseDoubleClick += TrayMouseDoubleClick;
-            _tray.ToolTipText = StaticResources.AppName;
-            _tray.Visibility = Visibility.Collapsed;
             var items = DataContext as IList<string>;
             if (items?.Count > 0)
             {
@@ -197,13 +199,11 @@ namespace MMT.UI
 
         private async void LstProfiles_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var item = sender as ListBoxItem;
-            if (item != null)
+            if (sender is ListBoxItem item && item.DataContext is string selectedProfile)
             {
-                string selectedProfile = item.DataContext.ToString();
                 if (selectedProfile.StartsWith("[Disabled]"))
                     _profileManager.Enable(selectedProfile);
-                else if (await MessageHelper.Confirm(string.Format("Disable profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
+                else if (await MessageHelper.Confirm($"Disable profile?\nProfile name: {selectedProfile}") == MessageDialogResult.Affirmative)
                     _profileManager.Disable(selectedProfile);
             }
         }
