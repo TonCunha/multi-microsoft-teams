@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -9,8 +8,8 @@ namespace MMT.Core
 {
     public class ProfileManager : INotifyPropertyChanged
     {
-        private IList<string> _profiles = new List<string>();
-        public IList<string> Profiles => _profiles;
+        private IList<Profile> _profiles = new List<Profile>();
+        public IList<Profile> Profiles => _profiles;
 
         private static readonly string _customProfilesPath = Path.Combine(StaticResources.LocalAppData, StaticResources.CustomProfiles);
 
@@ -22,33 +21,17 @@ namespace MMT.Core
             UpdateProfiles();
         }
 
-        private void UpdateProfiles()
-        {
-            if (!Directory.Exists(_customProfilesPath))
-                Directory.CreateDirectory(_customProfilesPath);
-
-            _profiles = Directory.GetDirectories(_customProfilesPath)
-                .Select(path => new DirectoryInfo(path).Name)
-                .Where(name => !String.IsNullOrWhiteSpace(name))
-                .Select(profile => IsDisabled(profile) ? $"[Disabled] {profile}" : profile)
-                .ToList();
-            _profiles.Insert(0, "[Default]");
-
-            OnPropertyRaised(nameof(Profiles));
-        }
-
-        private static string GetProfilePath (string profileName) => Path.Combine(_customProfilesPath, profileName);
-
+        #region Public
         public void Save(string profileName)
         {
             if (string.IsNullOrWhiteSpace(profileName))
                 throw new ArgumentException("Profile name is required.");
 
-            if (Profiles.Any(p => String.Equals(p, profileName, StringComparison.OrdinalIgnoreCase)))
+            if (Profiles.Any(p => string.Equals(p.Name, profileName, StringComparison.OrdinalIgnoreCase)))
                 throw new ArgumentException("This profile already exists.");
 
             // Create UserProfile-Folder-Structure
-            var path = GetProfilePath(profileName);
+            string? path = Path.Combine(_customProfilesPath, profileName);
             Directory.CreateDirectory(path);
             Directory.CreateDirectory(Path.Combine(path, "Desktop"));
             Directory.CreateDirectory(Path.Combine(path, "Downloads"));
@@ -56,11 +39,11 @@ namespace MMT.Core
             UpdateProfiles();
         }
 
-        public void Delete(string profileName)
+        public void Delete(Profile profile)
         {
-            if (!IsDefault(profileName))
+            if (!profile.IsDefault)
             {
-                string path = GetProfilePath(profileName);
+                string path = profile.Path;
 
                 if (Directory.Exists(path))
                     Directory.Delete(path, true);
@@ -69,28 +52,47 @@ namespace MMT.Core
             UpdateProfiles();
         }
 
-        private static string GetDisabledFilePath(string profileName) => Path.Combine(GetProfilePath(profileName), "MMT.disabled");
-
-        private static bool IsDisabled(string profileName) => File.Exists(GetDisabledFilePath(profileName));
-
-        public void Enable(string profileName)
+        public void Enable(Profile profile)
         {
-            if (IsDisabled(profileName))
+            if (profile.IsDisabled)
             {
-                File.Delete(GetDisabledFilePath(profileName));
+                File.Delete(GetDisabledFilePath(profile));
                 UpdateProfiles();
             }
         }
 
-        public void Disable(string profileName)
+        public void Disable(Profile profile)
         {
-            if (!IsDisabled(profileName))
+            if (!profile.IsDisabled)
             {
-                using (File.Create(GetDisabledFilePath(profileName))) { }
+                using (File.Create(GetDisabledFilePath(profile))) { }
                 UpdateProfiles();
             }
         }
 
-        public static bool IsDefault(string profileName) => string.Equals(profileName, "[Default]");
+        public static bool IsDisabled(Profile profile) => File.Exists(GetDisabledFilePath(profile));
+        #endregion
+
+        #region Private Helper
+        private void UpdateProfiles()
+        {
+            if (!Directory.Exists(_customProfilesPath))
+                Directory.CreateDirectory(_customProfilesPath);
+
+            _profiles = Directory.GetDirectories(_customProfilesPath)
+                .Select(fullPath =>
+                {
+                    string name = new DirectoryInfo(fullPath).Name;
+                    return new Profile(name, fullPath);
+                })
+                .ToList();
+
+            _profiles.Insert(0, new Profile("[Default]", StaticResources.UserProfile) { IsDefault = true });
+
+            OnPropertyRaised(nameof(Profiles));
+        }
+
+        private static string GetDisabledFilePath(Profile profile) => Path.Combine(profile.Path, "MMT.disabled");
+        #endregion
     }
 }

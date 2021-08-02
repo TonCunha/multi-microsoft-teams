@@ -4,9 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"      
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"                                
-        xmlns:local="clr-namespace:MMT.UI" xmlns:core="clr-namespace:MMT.Core;assembly=MMT.Core" d:DataContext="{d:DesignInstance Type=core:ProfileManager}"
+        xmlns:core="clr-namespace:MMT.Core;assembly=MMT.Core" d:DataContext="{d:DesignInstance Type=core:ProfileManager}"
                   mc:Ignorable="d"
         Title="Multi Microsoft Teams" Height="250" Width="400" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" StateChanged="MetroWindow_StateChanged">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -27,6 +30,24 @@
                     </Grid.RowDefinitions>
 
                     <ListBox Grid.Row="0" Name="lstProfiles" ItemsSource="{Binding Profiles}" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" SelectionMode="Multiple">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type core:Profile}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="❌ " Foreground="Gray" Visibility="{Binding IsDisabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    <TextBlock Text="{Binding Name}">
+                                        <TextBlock.Resources>
+                                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsDisabled}" Value="True">
+                                                        <Setter Property="TextBox.Foreground" Value="Gray"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Resources>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
                                 <EventSetter Event="MouseDoubleClick" Handler="LstProfiles_MouseDoubleClick"/>

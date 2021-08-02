@@ -3,7 +3,6 @@ using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using MMT.Core;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -58,13 +57,12 @@ namespace MMT.UI
                 Visibility = Visibility.Collapsed
             };
             _tray.TrayMouseDoubleClick += TrayMouseDoubleClick;
-            var items = DataContext as IList<string>;
-            if (items?.Count > 0)
+            if (DataContext is ProfileManager pm && pm.Profiles.Count > 0)
             {
                 _tray.ContextMenu = new ContextMenu();
-                items.ToList().ForEach((profile) =>
+                pm.Profiles.ToList().ForEach((profile) =>
                 {
-                    var menuItem = new MenuItem() { Header = profile };
+                    MenuItem menuItem = new MenuItem() { Header = profile.Name, DataContext = profile };
                     menuItem.Click += MenuItem_Click;
                     _tray.ContextMenu.Items.Add(menuItem);
                 });
@@ -73,10 +71,10 @@ namespace MMT.UI
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var menuItem = sender as MenuItem;
-            if (sender != null)
+            MenuItem menuItem = sender as MenuItem;
+            if (sender != null && menuItem.DataContext is Profile profile)
             {
-                _teamsLauncher.Start(menuItem.Header.ToString());
+                _teamsLauncher.Start(profile);
             }
         }
 
@@ -97,11 +95,11 @@ namespace MMT.UI
                 WindowState = WindowState.Minimized;
                 MetroWindow_StateChanged(null, null);
 
-                var thread = new Thread(() =>
+                Thread thread = new Thread(() =>
                 {
-                    foreach (var item in lstProfiles.Items)
-                        if (!item.ToString().StartsWith("[Disabled]"))
-                            _teamsLauncher.Start(item.ToString());
+                    foreach (Profile item in lstProfiles.Items.OfType<Profile>())
+                        if (!item.IsDisabled)
+                            _teamsLauncher.Start(item);
                 });
                 thread.Start();
             }
@@ -161,8 +159,8 @@ namespace MMT.UI
             {
                 if (lstProfiles.SelectedItems?.Count > 0)
                 {
-                    lstProfiles.SelectedItems.OfType<string>()
-                        .Where((item) => !item.StartsWith("[Disabled]"))
+                    lstProfiles.SelectedItems.OfType<Profile>()
+                        .Where((item) => !item.IsDisabled)
                         .ToList()
                         .ForEach((item) =>
                     {
@@ -181,10 +179,11 @@ namespace MMT.UI
         {
             if (e.Key == Key.Delete)
             {
-                for (int i = (lstProfiles.SelectedItems.Count - 1); i >= 0; i--)
+                for (int i = lstProfiles.SelectedItems.Count - 1; i >= 0; i--)
                 {
-                    var selectedProfile = lstProfiles.SelectedItems[i].ToString();
-                    if (await MessageHelper.Confirm(string.Format("Delete profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
+                    if (lstProfiles.SelectedItems[i] is Profile selectedProfile && 
+                        !selectedProfile.IsDefault &&
+                        await MessageHelper.Confirm(string.Format("Delete profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
                     {
                         _profileManager.Delete(selectedProfile);
                     }
@@ -199,11 +198,11 @@ namespace MMT.UI
 
         private async void LstProfiles_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ListBoxItem item && item.DataContext is string selectedProfile)
+            if (sender is ListBoxItem item && item.DataContext is Profile selectedProfile)
             {
-                if (selectedProfile.StartsWith("[Disabled]"))
+                if (selectedProfile.IsDisabled)
                     _profileManager.Enable(selectedProfile);
-                else if (await MessageHelper.Confirm($"Disable profile?\nProfile name: {selectedProfile}") == MessageDialogResult.Affirmative)
+                else if (await MessageHelper.Confirm($"Disable profile?\nProfile name: {selectedProfile.Name}") == MessageDialogResult.Affirmative)
                     _profileManager.Disable(selectedProfile);
             }
         }

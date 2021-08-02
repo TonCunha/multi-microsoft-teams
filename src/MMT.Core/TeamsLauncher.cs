@@ -6,16 +6,16 @@ namespace MMT.Core
 {
     public class TeamsLauncher
     {
-        public void Start(string profileName)
+        public void Start(Profile profile)
         {
-            if (string.IsNullOrWhiteSpace(profileName))
+            if (string.IsNullOrWhiteSpace(profile.Name))
                 throw new ArgumentNullException("Profile name is required.");
 
             // Profile called [Default] will start Teams in the current users profile (like not using MMT)
-            if (!ProfileManager.IsDefault(profileName))
+            if (!profile.IsDefault)
             {
                 // Overwrite env variable to force teams to run with the selected profile
-                string mmtUserProfilePath = Path.Combine(StaticResources.LocalAppData, StaticResources.CustomProfiles, profileName);
+                string mmtUserProfilePath = Path.Combine(StaticResources.LocalAppData, StaticResources.CustomProfiles, profile.Name);
                 Environment.SetEnvironmentVariable("USERPROFILE", mmtUserProfilePath);
             }
 
@@ -27,7 +27,7 @@ namespace MMT.Core
         {
             try
             {
-                var updateExeProcess = new Process
+                Process? updateExeProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
@@ -42,7 +42,7 @@ namespace MMT.Core
 
                 while (!updateExeProcess.StandardOutput.EndOfStream)
                 {
-                    var line = updateExeProcess.StandardOutput.ReadLine();
+                    string? line = updateExeProcess.StandardOutput.ReadLine();
                     Console.WriteLine(line);
                 }
 
