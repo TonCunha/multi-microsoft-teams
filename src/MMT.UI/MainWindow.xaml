@@ -5,10 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"      
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"                                
         xmlns:core="clr-namespace:MMT.Core;assembly=MMT.Core" d:DataContext="{d:DesignInstance Type=core:ProfileManager}"
-                  mc:Ignorable="d"
+        xmlns:local="clr-namespace:MMT.UI"
+        mc:Ignorable="d"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
         Title="Multi Microsoft Teams" Height="250" Width="400" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" StateChanged="MetroWindow_StateChanged">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <ContextMenu x:Key="trayContextMenu" Visibility="Collapsed">
+            <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
+                <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
+                <Setter Property="Header" Value="{Binding Name}" />
+                <EventSetter Event="Click" Handler="MenuItem_Click" />
+            </Style>
+        </ContextMenu>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -82,5 +91,14 @@
                 </Grid>
             </TabItem>
         </TabControl>
+
+        <tb:TaskbarIcon x:Name="_tray" 
+                        Icon="{x:Static local:Resource.Taskbar}" 
+                        DataContext="{Binding Profiles}" 
+                        ToolTipText="{x:Static core:StaticResources.AppName}" 
+                        Visibility="Collapsed" 
+                        TrayMouseDoubleClick="TrayMouseDoubleClick" 
+                        ContextMenu="{StaticResource trayContextMenu}" 
+        />
     </Grid>
 </mah:MetroWindow>

@@ -11,6 +11,8 @@ namespace MMT.Core
             if (string.IsNullOrWhiteSpace(profile.Name))
                 throw new ArgumentNullException("Profile name is required.");
 
+            string? originalUserProfilePath = Environment.GetEnvironmentVariable("USERPROFILE");
+
             // Profile called [Default] will start Teams in the current users profile (like not using MMT)
             if (!profile.IsDefault)
             {
@@ -21,6 +23,9 @@ namespace MMT.Core
 
             string updateExePath = Path.Combine(StaticResources.UserProfile, StaticResources.UpdateExe);
             UpdateProfileAndStartTeams(updateExePath);
+
+            // revert USERPROFILE path to default
+            Environment.SetEnvironmentVariable("USERPROFILE", originalUserProfilePath);
         }
 
         private void UpdateProfileAndStartTeams(string updatePath)

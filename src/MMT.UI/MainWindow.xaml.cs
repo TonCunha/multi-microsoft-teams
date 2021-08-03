@@ -18,7 +18,6 @@ namespace MMT.UI
         private readonly ProfileManager _profileManager;
         private readonly TeamsLauncher _teamsLauncher;
         private readonly RegistryManager _registryManager;
-        private TaskbarIcon _tray;
 
         public MainWindow()
         {
@@ -28,7 +27,6 @@ namespace MMT.UI
             _registryManager = new RegistryManager();
             DataContext = _profileManager;
             ChangeTabVisibility();
-            CreateTray();
             AutoStartCheck();
         }
 
@@ -47,32 +45,9 @@ namespace MMT.UI
                 tbcMain.SelectedItem = tbiNewProfile;
             }
         }
-
-        private void CreateTray()
-        {
-            _tray = new TaskbarIcon
-            {
-                Icon = Resource.Taskbar,
-                ToolTipText = StaticResources.AppName,
-                Visibility = Visibility.Collapsed
-            };
-            _tray.TrayMouseDoubleClick += TrayMouseDoubleClick;
-            if (DataContext is ProfileManager pm && pm.Profiles.Count > 0)
-            {
-                _tray.ContextMenu = new ContextMenu();
-                pm.Profiles.ToList().ForEach((profile) =>
-                {
-                    MenuItem menuItem = new MenuItem() { Header = profile.Name, DataContext = profile };
-                    menuItem.Click += MenuItem_Click;
-                    _tray.ContextMenu.Items.Add(menuItem);
-                });
-            }
-        }
-
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem menuItem = sender as MenuItem;
-            if (sender != null && menuItem.DataContext is Profile profile)
+            if (sender is MenuItem menuItem && menuItem.DataContext is Profile profile)
             {
                 _teamsLauncher.Start(profile);
             }
