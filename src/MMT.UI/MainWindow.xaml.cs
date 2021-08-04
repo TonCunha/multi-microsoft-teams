@@ -146,7 +146,6 @@ namespace MMT.UI
             catch (Exception ex)
             {
                 MessageHelper.Info(ex.Message);
-                txtProfileName.Focus();
             }
         }
 
