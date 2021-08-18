@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -19,6 +20,7 @@ namespace MMT.Core
         public ProfileManager()
         {
             UpdateProfiles();
+            MigrateDisabledProfiles();
         }
 
         #region Public
@@ -93,6 +95,31 @@ namespace MMT.Core
         }
 
         private static string GetDisabledFilePath(Profile profile) => Path.Combine(profile.Path, "MMT.disabled");
+
+        private void MigrateDisabledProfiles()
+        {
+            // Our current process always has directory information
+            string _disabledProfilesPath = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName)!, "disabled-profiles.txt");
+
+            List<string> oldDisabledProfiles = new List<string>();
+            if (File.Exists(_disabledProfilesPath))
+            {
+                using StreamReader? sr = new StreamReader(_disabledProfilesPath);
+                while (!sr.EndOfStream)
+                {
+                    // ReadLine cannot be null, cause we break the loop on EndOfStream
+                    oldDisabledProfiles.Add(sr.ReadLine()!);
+                }
+
+                oldDisabledProfiles
+                    .Select(disableProfileName => _profiles.FirstOrDefault(profile => profile.Name == disableProfileName))
+                    .Where(profileToMigrate => profileToMigrate != null)
+                    .ToList()
+                    .ForEach(Disable);
+
+                File.Delete(_disabledProfilesPath);
+            }
+        }
         #endregion
     }
 }
