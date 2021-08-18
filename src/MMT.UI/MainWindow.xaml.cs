@@ -73,8 +73,12 @@ namespace MMT.UI
                 Thread thread = new Thread(() =>
                 {
                     foreach (Profile item in lstProfiles.Items.OfType<Profile>())
+                    {
                         if (!item.IsDisabled)
+                        {
                             _teamsLauncher.Start(item);
+                        }
+                    }
                 });
                 thread.Start();
             }
@@ -98,9 +102,13 @@ namespace MMT.UI
         private void ChkAutoStart_Click(object sender, RoutedEventArgs e)
         {
             if (chkAutoStart.IsChecked.HasValue && chkAutoStart.IsChecked.Value)
+            {
                 _registryManager.AddApplicationInStartup(StaticResources.AppName);
+            }
             else if (_registryManager.IsApplicationInStartup(StaticResources.AppName))
+            {
                 _registryManager.RemoveApplicationFromStartup(StaticResources.AppName);
+            }
         }
 
         private void BtnNewProfile_Click(object sender, RoutedEventArgs e)
@@ -175,9 +183,13 @@ namespace MMT.UI
             if (sender is ListBoxItem item && item.DataContext is Profile selectedProfile)
             {
                 if (selectedProfile.IsDisabled)
+                {
                     _profileManager.Enable(selectedProfile);
+                }
                 else if (await MessageHelper.Confirm($"Disable profile?\nProfile name: {selectedProfile.Name}") == MessageDialogResult.Affirmative)
+                {
                     _profileManager.Disable(selectedProfile);
+                }
             }
         }
     }

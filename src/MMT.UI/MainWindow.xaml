@@ -11,12 +11,14 @@
         Title="Multi Microsoft Teams" Height="250" Width="400" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" StateChanged="MetroWindow_StateChanged">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <ContextMenu x:Key="trayContextMenu" Visibility="Collapsed">
-            <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
-                <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
-                <Setter Property="Header" Value="{Binding Name}" />
-                <EventSetter Event="Click" Handler="MenuItem_Click" />
-            </Style>
+        <ContextMenu ItemsSource="{Binding Profiles}"  x:Key="trayContextMenu">
+            <ContextMenu.ItemContainerStyle>
+                <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
+                    <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
+                    <Setter Property="Header" Value="{Binding Name}" />
+                    <EventSetter Event="Click" Handler="MenuItem_Click" />
+                </Style>
+            </ContextMenu.ItemContainerStyle>
         </ContextMenu>
     </Window.Resources>
     <Grid>
@@ -94,7 +96,6 @@
 
         <tb:TaskbarIcon x:Name="_tray" 
                         Icon="{x:Static local:Resource.Taskbar}" 
-                        DataContext="{Binding Profiles}" 
                         ToolTipText="{x:Static core:StaticResources.AppName}" 
                         Visibility="Collapsed" 
                         TrayMouseDoubleClick="TrayMouseDoubleClick" 
