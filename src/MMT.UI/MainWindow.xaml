@@ -40,11 +40,11 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ListBox Grid.Row="0" Name="lstProfiles" ItemsSource="{Binding Profiles}" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" SelectionMode="Multiple">
+                    <ListBox Grid.Row="0" Name="lstProfiles" ItemsSource="{Binding Profiles}" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" SelectionMode="Single">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type core:Profile}">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="❌ " Foreground="Gray" Visibility="{Binding IsDisabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    <TextBlock Text="[Disabled] " Foreground="Gray" Visibility="{Binding IsDisabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                     <TextBlock Text="{Binding Name}">
                                         <TextBlock.Resources>
                                             <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">

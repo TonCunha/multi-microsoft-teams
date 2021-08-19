@@ -4,6 +4,7 @@ using MahApps.Metro.Controls.Dialogs;
 using MMT.Core;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
@@ -163,11 +164,25 @@ namespace MMT.UI
             {
                 for (int i = lstProfiles.SelectedItems.Count - 1; i >= 0; i--)
                 {
-                    if (lstProfiles.SelectedItems[i] is Profile selectedProfile && 
-                        !selectedProfile.IsDefault &&
-                        await MessageHelper.Confirm(string.Format("Delete profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
+                    if (lstProfiles.SelectedItems[i] is Profile selectedProfile && !selectedProfile.IsDefault &&
+                        await MessageHelper.Confirm($"Delete profile?\nProfile name: {selectedProfile.Name}") == MessageDialogResult.Affirmative)
                     {
-                        _profileManager.Delete(selectedProfile);
+                        try
+                        {
+                            _profileManager.Delete(selectedProfile);
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            MessageHelper.Info($"Profile {selectedProfile.Name} has not been deleted. Close Microsoft Teams and try again.");
+                        }
+                        catch (IOException ex)
+                        {
+                            if (await MessageHelper.Confirm($"{ex.Message} Do you want continue?") == MessageDialogResult.Affirmative)
+                            {
+                                _teamsLauncher.CloseAllInstances();
+                                _profileManager.Delete(selectedProfile);
+                            }
+                        }
                     }
                 }
             }
@@ -194,3 +209,4 @@ namespace MMT.UI
         }
     }
 }
+

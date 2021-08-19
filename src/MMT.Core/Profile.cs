@@ -6,8 +6,6 @@
 
         public bool IsDefault { get; set; }
 
-        public bool IsEnabled => !IsDisabled;
-
         public string Name { get; set; }
 
         public string Path { get; set; }

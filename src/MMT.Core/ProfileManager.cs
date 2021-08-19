@@ -27,12 +27,15 @@ namespace MMT.Core
         public void Save(string profileName)
         {
             if (string.IsNullOrWhiteSpace(profileName))
+            {
                 throw new ArgumentException("Profile name is required.");
+            }
 
             if (Profiles.Any(p => string.Equals(p.Name, profileName, StringComparison.OrdinalIgnoreCase)))
+            {
                 throw new ArgumentException("This profile already exists.");
+            }
 
-            // Create UserProfile-Folder-Structure
             string? path = Path.Combine(_customProfilesPath, profileName);
             Directory.CreateDirectory(path);
             Directory.CreateDirectory(Path.Combine(path, "Desktop"));
@@ -45,13 +48,34 @@ namespace MMT.Core
         {
             if (!profile.IsDefault)
             {
-                string path = profile.Path;
+                if (Directory.Exists(profile.Path))
+                {
+                    bool isFilesLocked = new DirectoryInfo(profile.Path).GetFiles("*.*", SearchOption.AllDirectories).Any(f => IsFileLocked(f));
+                    if (isFilesLocked)
+                    {
+                        throw new IOException("Some files are locked, you need close all instances of Microsoft Teams before delete this profile.");
+                    }
 
-                if (Directory.Exists(path))
-                    Directory.Delete(path, true);
+                    Directory.Delete(profile.Path, true);
+                }
             }
 
             UpdateProfiles();
+        }
+        
+        protected virtual bool IsFileLocked(FileInfo file)
+        {
+            try
+            {
+                using FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+                stream.Close();
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public void Enable(Profile profile)
@@ -67,8 +91,10 @@ namespace MMT.Core
         {
             if (!profile.IsDisabled)
             {
-                using (File.Create(GetDisabledFilePath(profile))) { }
-                UpdateProfiles();
+                using (File.Create(GetDisabledFilePath(profile)))
+                {
+                    UpdateProfiles();
+                }
             }
         }
 
@@ -89,7 +115,7 @@ namespace MMT.Core
                 })
                 .ToList();
 
-            _profiles.Insert(0, new Profile("[Default]", StaticResources.UserProfile) { IsDefault = true });
+            _profiles.Insert(0, new Profile("Microsoft Teams (Default)", StaticResources.UserProfile) { IsDefault = true });
 
             OnPropertyRaised(nameof(Profiles));
         }
@@ -98,7 +124,6 @@ namespace MMT.Core
 
         private void MigrateDisabledProfiles()
         {
-            // Our current process always has directory information
             string _disabledProfilesPath = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName)!, "disabled-profiles.txt");
 
             List<string> oldDisabledProfiles = new List<string>();
@@ -107,7 +132,6 @@ namespace MMT.Core
                 using StreamReader? sr = new StreamReader(_disabledProfilesPath);
                 while (!sr.EndOfStream)
                 {
-                    // ReadLine cannot be null, cause we break the loop on EndOfStream
                     oldDisabledProfiles.Add(sr.ReadLine()!);
                 }
 
