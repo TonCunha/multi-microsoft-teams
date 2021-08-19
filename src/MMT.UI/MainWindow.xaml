@@ -4,9 +4,23 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"      
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"                                
-        xmlns:local="clr-namespace:MMT.UI"                  
+        xmlns:core="clr-namespace:MMT.Core;assembly=MMT.Core" d:DataContext="{d:DesignInstance Type=core:ProfileManager}"
+        xmlns:local="clr-namespace:MMT.UI"
         mc:Ignorable="d"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
         Title="Multi Microsoft Teams" Height="250" Width="400" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" StateChanged="MetroWindow_StateChanged">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <ContextMenu ItemsSource="{Binding Profiles}"  x:Key="trayContextMenu">
+            <ContextMenu.ItemContainerStyle>
+                <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
+                    <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
+                    <Setter Property="Header" Value="{Binding Name}" />
+                    <EventSetter Event="Click" Handler="MenuItem_Click" />
+                </Style>
+            </ContextMenu.ItemContainerStyle>
+        </ContextMenu>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -26,11 +40,36 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ListBox Grid.Row="0" Name="lstProfiles" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" MouseDoubleClick="LstProfiles_MouseDoubleClick" />
+                    <ListBox Grid.Row="0" Name="lstProfiles" ItemsSource="{Binding Profiles}" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type core:Profile}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="[Disabled] " Foreground="Gray" Visibility="{Binding IsDisabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    <TextBlock Text="{Binding Name}">
+                                        <TextBlock.Resources>
+                                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsDisabled}" Value="True">
+                                                        <Setter Property="TextBox.Foreground" Value="Gray"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Resources>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                <EventSetter Event="MouseDoubleClick" Handler="LstProfiles_MouseDoubleClick"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
 
                     <Grid Grid.Row="1" Margin="5" Height="Auto">
                         <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-                            <Button Name="btnLaunchTeams"  Width="100" Content="Launch Teams" Click="BtnLaunchTeams_Click"/>
+                            <Button Name="btnLaunchTeams"  Width="100" Content="Launch Teams" Click="BtnLaunchTeams_Click" IsEnabled="{Binding ElementName=lstProfiles, Path=SelectedItems.Count}">
+                            </Button>
                             <CheckBox Name="chkAutoStart" Margin="8,0,0,0" HorizontalAlignment="Left" Content="Auto start" Click="ChkAutoStart_Click"/>
                         </StackPanel>
                         <Button Name="btnNewProfile" HorizontalAlignment="Right" Width="100" Content="New profile" Click="BtnNewProfile_Click"/>
@@ -54,5 +93,13 @@
                 </Grid>
             </TabItem>
         </TabControl>
+
+        <tb:TaskbarIcon x:Name="_tray" 
+                        Icon="{x:Static local:Resource.Taskbar}" 
+                        ToolTipText="{x:Static core:StaticResources.AppName}" 
+                        Visibility="Collapsed" 
+                        TrayMouseDoubleClick="TrayMouseDoubleClick" 
+                        ContextMenu="{StaticResource trayContextMenu}" 
+        />
     </Grid>
 </mah:MetroWindow>

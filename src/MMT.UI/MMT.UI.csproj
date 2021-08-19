@@ -13,8 +13,8 @@
     <Copyright>Cleriton Cunha</Copyright>
     <Description>Launcher to manage profiles and open multiple instances of Microsoft Teams desktop version. It's compatible with many accounts and organizations (tenants).</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <AssemblyVersion>1.0.0.4</AssemblyVersion>
-    <FileVersion>1.0.0.4</FileVersion>
+    <AssemblyVersion>1.0.0.5</AssemblyVersion>
+    <FileVersion>1.0.0.5</FileVersion>
     <Version>1.0.0.4</Version>
     <Win32Resource />        
   </PropertyGroup>
@@ -45,7 +45,7 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Resource.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>

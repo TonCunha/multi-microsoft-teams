@@ -4,7 +4,7 @@ namespace MMT.Core
 {
     public static class StaticResources
     {
-        private static string _userProfile;
+        private static string? _userProfile;
         public static string UserProfile
         {
             get
@@ -16,7 +16,7 @@ namespace MMT.Core
             }
         }
 
-        private static string _localAppData;
+        private static string? _localAppData;
         public static string LocalAppData
         {
             get

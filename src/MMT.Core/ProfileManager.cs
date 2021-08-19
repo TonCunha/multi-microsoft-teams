@@ -1,97 +1,149 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
 namespace MMT.Core
 {
-    public class ProfileManager
+    public class ProfileManager : INotifyPropertyChanged
     {
-        private readonly string _customProfilesPath;
-        private string _disabledProfilesPath = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "disabled-profiles.txt");
+        private IList<Profile> _profiles = new List<Profile>();
+        public IList<Profile> Profiles => _profiles;
+
+        private static readonly string _customProfilesPath = Path.Combine(StaticResources.LocalAppData, StaticResources.CustomProfiles);
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyRaised(string propertyname) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyname));
 
         public ProfileManager()
         {
-            string localAppData = StaticResources.LocalAppData;
-            _customProfilesPath = Path.Combine(localAppData, StaticResources.CustomProfiles);
+            UpdateProfiles();
+            MigrateDisabledProfiles();
         }
 
-        public List<string> GetProfiles()
+        #region Public
+        public void Save(string profileName)
+        {
+            if (string.IsNullOrWhiteSpace(profileName))
+            {
+                throw new ArgumentException("Profile name is required.");
+            }
+
+            if (Profiles.Any(p => string.Equals(p.Name, profileName, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new ArgumentException("This profile already exists.");
+            }
+
+            string? path = Path.Combine(_customProfilesPath, profileName);
+            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(Path.Combine(path, "Desktop"));
+            Directory.CreateDirectory(Path.Combine(path, "Downloads"));
+
+            UpdateProfiles();
+        }
+
+        public void Delete(Profile profile)
+        {
+            if (!profile.IsDefault)
+            {
+                if (Directory.Exists(profile.Path))
+                {
+                    bool isFilesLocked = new DirectoryInfo(profile.Path).GetFiles("*.*", SearchOption.AllDirectories).Any(f => IsFileLocked(f));
+                    if (isFilesLocked)
+                    {
+                        throw new IOException("Some files are locked, you need close all instances of Microsoft Teams before delete this profile.");
+                    }
+
+                    Directory.Delete(profile.Path, true);
+                }
+            }
+
+            UpdateProfiles();
+        }
+        
+        protected virtual bool IsFileLocked(FileInfo file)
+        {
+            try
+            {
+                using FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+                stream.Close();
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public void Enable(Profile profile)
+        {
+            if (profile.IsDisabled)
+            {
+                File.Delete(GetDisabledFilePath(profile));
+                UpdateProfiles();
+            }
+        }
+
+        public void Disable(Profile profile)
+        {
+            if (!profile.IsDisabled)
+            {
+                using (File.Create(GetDisabledFilePath(profile)))
+                {
+                    UpdateProfiles();
+                }
+            }
+        }
+
+        public static bool IsDisabled(Profile profile) => File.Exists(GetDisabledFilePath(profile));
+        #endregion
+
+        #region Private Helper
+        private void UpdateProfiles()
         {
             if (!Directory.Exists(_customProfilesPath))
                 Directory.CreateDirectory(_customProfilesPath);
 
-            var allProfiles = Directory.GetDirectories(_customProfilesPath).Select(p => new DirectoryInfo(p).Name).ToList();
-            var disabledProfiles = GetDisabledProfiles();
+            _profiles = Directory.GetDirectories(_customProfilesPath)
+                .Select(fullPath =>
+                {
+                    string name = new DirectoryInfo(fullPath).Name;
+                    return new Profile(name, fullPath);
+                })
+                .ToList();
 
-            var profiles = new List<string>();
-            foreach (var profile in allProfiles)
-            {
-                if (disabledProfiles.Any(p => p == profile))
-                    profiles.Add($"[Disabled] {profile}");
-                else
-                    profiles.Add(profile);
-            }
+            _profiles.Insert(0, new Profile("Microsoft Teams (Default)", StaticResources.UserProfile) { IsDefault = true });
 
-            return profiles;
+            OnPropertyRaised(nameof(Profiles));
         }
 
-        public void Save(string profileName)
+        private static string GetDisabledFilePath(Profile profile) => Path.Combine(profile.Path, "MMT.disabled");
+
+        private void MigrateDisabledProfiles()
         {
-            if (string.IsNullOrWhiteSpace(profileName))
-                throw new ArgumentException("Profile name is required.");
+            string _disabledProfilesPath = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName)!, "disabled-profiles.txt");
 
-            if (GetProfiles().Any(p => p.ToUpper().Equals(profileName.ToUpper())))
-                throw new ArgumentException("This profile already exists.");
-
-            Directory.CreateDirectory(Path.Combine(_customProfilesPath, profileName));
-            Directory.CreateDirectory(Path.Combine(_customProfilesPath, profileName, "Desktop"));
-            Directory.CreateDirectory(Path.Combine(_customProfilesPath, profileName, "Downloads"));
-        }
-
-        public void Delete(string profileName)
-        {
-            string path = Path.Combine(_customProfilesPath, profileName);
-
-            if (Directory.Exists(path))
-                Directory.Delete(path, true);
-        }
-
-        private List<string> GetDisabledProfiles()
-        {
-            var profiles = new List<string>();
+            List<string> oldDisabledProfiles = new List<string>();
             if (File.Exists(_disabledProfilesPath))
             {
-                using var sr = new StreamReader(_disabledProfilesPath);
+                using StreamReader? sr = new StreamReader(_disabledProfilesPath);
                 while (!sr.EndOfStream)
                 {
-                    profiles.Add(sr.ReadLine());
+                    oldDisabledProfiles.Add(sr.ReadLine()!);
                 }
-            }
 
-            return profiles;
-        }
+                oldDisabledProfiles
+                    .Select(disableProfileName => _profiles.FirstOrDefault(profile => profile.Name == disableProfileName))
+                    .Where(profileToMigrate => profileToMigrate != null)
+                    .ToList()
+                    .ForEach(Disable);
 
-
-        public void Enable(string profileName)
-        {
-            profileName = profileName.Replace("[Disabled] ", string.Empty);
-            var disabledProfiles = GetDisabledProfiles();
-            disabledProfiles.Remove(profileName);
-            using var sw = new StreamWriter(_disabledProfilesPath);
-            disabledProfiles.ForEach(p => sw.WriteLine(p));
-        }
-
-        public void Disable(string profileName)
-        {
-            var disabledProfiles = GetDisabledProfiles();
-            if (!disabledProfiles.Any(p => p == profileName))
-            {
-                using var sw = new StreamWriter(_disabledProfilesPath);
-                disabledProfiles.ForEach(p => sw.WriteLine(p));
-                sw.WriteLine(profileName);                
+                File.Delete(_disabledProfilesPath);
             }
         }
+        #endregion
     }
 }

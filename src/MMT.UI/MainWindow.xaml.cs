@@ -3,10 +3,12 @@ using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using MMT.Core;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
 
@@ -17,7 +19,6 @@ namespace MMT.UI
         private readonly ProfileManager _profileManager;
         private readonly TeamsLauncher _teamsLauncher;
         private readonly RegistryManager _registryManager;
-        private TaskbarIcon _tray;
 
         public MainWindow()
         {
@@ -25,8 +26,8 @@ namespace MMT.UI
             _profileManager = new ProfileManager();
             _teamsLauncher = new TeamsLauncher();
             _registryManager = new RegistryManager();
+            DataContext = _profileManager;
             ChangeTabVisibility();
-            CreateTray();
             AutoStartCheck();
         }
 
@@ -37,7 +38,6 @@ namespace MMT.UI
                 tbiProfiles.Visibility = Visibility.Visible;
                 tbiNewProfile.Visibility = Visibility.Collapsed;
                 tbcMain.SelectedItem = tbiProfiles;
-                LoadProfiles();
             }
             else
             {
@@ -46,21 +46,12 @@ namespace MMT.UI
                 tbcMain.SelectedItem = tbiNewProfile;
             }
         }
-
-        private void LoadProfiles()
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            lstProfiles.Items.Clear();
-            List<string> profiles = _profileManager.GetProfiles();
-            profiles.ForEach(p => lstProfiles.Items.Add(p));
-        }
-
-        private void CreateTray()
-        {
-            _tray = new TaskbarIcon();
-            _tray.Icon = Resource.Taskbar;
-            _tray.TrayMouseDoubleClick += TrayMouseDoubleClick;
-            _tray.ToolTipText = StaticResources.AppName;
-            _tray.Visibility = Visibility.Collapsed;
+            if (sender is MenuItem menuItem && menuItem.DataContext is Profile profile)
+            {
+                _teamsLauncher.Start(profile);
+            }
         }
 
         private void TrayMouseDoubleClick(object sender, RoutedEventArgs e)
@@ -80,11 +71,15 @@ namespace MMT.UI
                 WindowState = WindowState.Minimized;
                 MetroWindow_StateChanged(null, null);
 
-                var thread = new Thread(() =>
+                Thread thread = new Thread(() =>
                 {
-                    foreach (var item in lstProfiles.Items)
-                        if (!item.ToString().StartsWith("[Disabled]"))
-                            _teamsLauncher.Start(item.ToString());
+                    foreach (Profile item in lstProfiles.Items.OfType<Profile>())
+                    {
+                        if (!item.IsDisabled)
+                        {
+                            _teamsLauncher.Start(item);
+                        }
+                    }
                 });
                 thread.Start();
             }
@@ -108,9 +103,13 @@ namespace MMT.UI
         private void ChkAutoStart_Click(object sender, RoutedEventArgs e)
         {
             if (chkAutoStart.IsChecked.HasValue && chkAutoStart.IsChecked.Value)
+            {
                 _registryManager.AddApplicationInStartup(StaticResources.AppName);
+            }
             else if (_registryManager.IsApplicationInStartup(StaticResources.AppName))
+            {
                 _registryManager.RemoveApplicationFromStartup(StaticResources.AppName);
+            }
         }
 
         private void BtnNewProfile_Click(object sender, RoutedEventArgs e)
@@ -142,25 +141,49 @@ namespace MMT.UI
         {
             try
             {
-                if (lstProfiles.SelectedItem != null && !lstProfiles.SelectedItem.ToString().StartsWith("[Disabled]"))
-                    _teamsLauncher.Start(lstProfiles.SelectedItem.ToString());
+                if (lstProfiles.SelectedItems?.Count > 0)
+                {
+                    lstProfiles.SelectedItems.OfType<Profile>()
+                        .Where((item) => !item.IsDisabled)
+                        .ToList()
+                        .ForEach((item) =>
+                    {
+                        _teamsLauncher.Start(item);
+                    });
+                }
             }
             catch (Exception ex)
             {
                 MessageHelper.Info(ex.Message);
-                txtProfileName.Focus();
             }
         }
 
-        private async void LstProfiles_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        private async void LstProfiles_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Delete)
             {
-                string selectedProfile = lstProfiles.SelectedItem.ToString();
-                if (await MessageHelper.Confirm(string.Format("Delete profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
+                for (int i = lstProfiles.SelectedItems.Count - 1; i >= 0; i--)
                 {
-                    _profileManager.Delete(selectedProfile);
-                    LoadProfiles();
+                    if (lstProfiles.SelectedItems[i] is Profile selectedProfile && !selectedProfile.IsDefault &&
+                        await MessageHelper.Confirm($"Delete profile?\nProfile name: {selectedProfile.Name}") == MessageDialogResult.Affirmative)
+                    {
+                        try
+                        {
+                            _profileManager.Delete(selectedProfile);
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            MessageHelper.Info($"Profile {selectedProfile.Name} has not been deleted. Close Microsoft Teams and try again.");
+                        }
+                        catch (IOException ex)
+                        {
+                            if (await MessageHelper.Confirm($"{ex.Message} Do you want continue?") == MessageDialogResult.Affirmative)
+                            {
+                                _teamsLauncher.CloseAllInstances();
+                                _profileManager.Delete(selectedProfile);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -172,13 +195,18 @@ namespace MMT.UI
 
         private async void LstProfiles_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            string selectedProfile = lstProfiles.SelectedItem.ToString();
-            if (selectedProfile.StartsWith("[Disabled]"))
-                _profileManager.Enable(selectedProfile);
-            else if (await MessageHelper.Confirm(string.Format("Disable profile?\nProfile name: {0}", selectedProfile)) == MessageDialogResult.Affirmative)
-                _profileManager.Disable(selectedProfile);
-
-            LoadProfiles();
+            if (sender is ListBoxItem item && item.DataContext is Profile selectedProfile)
+            {
+                if (selectedProfile.IsDisabled)
+                {
+                    _profileManager.Enable(selectedProfile);
+                }
+                else if (await MessageHelper.Confirm($"Disable profile?\nProfile name: {selectedProfile.Name}") == MessageDialogResult.Affirmative)
+                {
+                    _profileManager.Disable(selectedProfile);
+                }
+            }
         }
     }
 }
+
