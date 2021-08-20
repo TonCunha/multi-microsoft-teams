@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -11,12 +12,17 @@ namespace MMT.UI
 
         public static async void Info(string message)
         {
-            await ((MetroWindow)(Application.Current.MainWindow)).ShowMessageAsync(_title, message);
+            await ((MetroWindow)Application.Current.MainWindow).ShowMessageAsync(_title, message);
         }
 
         public static async Task<MessageDialogResult> Confirm(string message)
         {
-            return await ((MetroWindow)(Application.Current.MainWindow)).ShowMessageAsync(_title, message, MessageDialogStyle.AffirmativeAndNegative);
+            return await ((MetroWindow)Application.Current.MainWindow).ShowMessageAsync(_title, message, MessageDialogStyle.AffirmativeAndNegative);
+        }
+
+        public static async Task<ProgressDialogController> Wait(string message)
+        {
+           return await ((MetroWindow)Application.Current.MainWindow).ShowProgressAsync(_title, message);
         }
     }
 }

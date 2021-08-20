@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -179,8 +180,12 @@ namespace MMT.UI
                         {
                             if (await MessageHelper.Confirm($"{ex.Message} Do you want continue?") == MessageDialogResult.Affirmative)
                             {
-                                _teamsLauncher.CloseAllInstances();
-                                _profileManager.Delete(selectedProfile);
+                                var controller = await MessageHelper.Wait("Processing, please wait.");
+                                _ = Task.Run(() =>
+                                  {
+                                      _teamsLauncher.CloseAllInstances();
+                                      _profileManager.Delete(selectedProfile);
+                                  }).ContinueWith(a => controller.CloseAsync());
                             }
                         }
                     }
