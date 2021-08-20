@@ -62,7 +62,7 @@ namespace MMT.Core
 
             UpdateProfiles();
         }
-        
+
         protected virtual bool IsFileLocked(FileInfo file)
         {
             try

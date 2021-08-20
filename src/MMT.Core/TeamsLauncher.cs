@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
+using System.Threading;
 
 namespace MMT.Core
 {
@@ -49,7 +49,17 @@ namespace MMT.Core
 
         public void CloseAllInstances()
         {
-            Process.GetProcessesByName("Teams").ToList().ForEach(p => p.Kill());
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    CreateNoWindow = true,
+                    FileName = "cmd.exe",
+                    Arguments = "/C taskkill /IM Teams.exe /F"
+                }
+            };
+            process.Start();
+            Thread.Sleep(TimeSpan.FromSeconds(15));
         }
     }
 }
