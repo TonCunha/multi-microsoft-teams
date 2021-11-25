@@ -4,6 +4,8 @@
     {
         public bool IsDisabled => ProfileManager.IsDisabled(this);
 
+        public bool IsEnabled => !IsDisabled;
+
         public bool IsDefault { get; set; }
 
         public string Name { get; set; }

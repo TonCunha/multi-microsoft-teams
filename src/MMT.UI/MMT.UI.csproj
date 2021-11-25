@@ -16,12 +16,13 @@
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
     <Version>1.0.0.5</Version>
-    <Win32Resource />        
+    <Win32Resource />
+    <ApplicationManifest>app.manifest</ApplicationManifest>        
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf.NetCore" Version="1.0.18" />
-    <PackageReference Include="MahApps.Metro" Version="2.4.7" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.9" />
   </ItemGroup>
 
   <ItemGroup>

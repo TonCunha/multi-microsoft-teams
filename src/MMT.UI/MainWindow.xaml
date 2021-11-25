@@ -25,11 +25,11 @@
         <Grid.RowDefinitions>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        
+
         <TextBlock Grid.Row="0" HorizontalAlignment="Right" Margin="10">
-            <Hyperlink NavigateUri="https://github.com/TonCunha/multi-microsoft-teams" RequestNavigate="Hyperlink_RequestNavigate">
-                Github
-            </Hyperlink>
+                <Hyperlink NavigateUri="https://github.com/TonCunha/multi-microsoft-teams" RequestNavigate="Hyperlink_RequestNavigate">
+                    Github
+                </Hyperlink>
         </TextBlock>
 
         <TabControl Grid.RowSpan="1"  Name="tbcMain">
@@ -40,7 +40,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ListBox Grid.Row="0" Name="lstProfiles" ItemsSource="{Binding Profiles}" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" SelectionMode="Single">
+                    <ListBox Grid.Row="0" Name="lstProfiles" ItemsSource="{Binding Profiles}" Margin="0,0,0,8" KeyUp="LstProfiles_KeyUp" SelectionMode="Multiple">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type core:Profile}">
                                 <StackPanel Orientation="Horizontal">
@@ -95,11 +95,11 @@
         </TabControl>
 
         <tb:TaskbarIcon x:Name="_tray" 
-                        Icon="{x:Static local:Resource.Taskbar}" 
-                        ToolTipText="{x:Static core:StaticResources.AppName}" 
-                        Visibility="Collapsed" 
-                        TrayMouseDoubleClick="TrayMouseDoubleClick" 
-                        ContextMenu="{StaticResource trayContextMenu}" 
-        />
+                            Icon="{x:Static local:Resource.Taskbar}" 
+                            ToolTipText="{x:Static core:StaticResources.AppName}" 
+                            Visibility="Collapsed" 
+                            TrayMouseDoubleClick="TrayMouseDoubleClick" 
+                            ContextMenu="{StaticResource trayContextMenu}" 
+            />
     </Grid>
 </mah:MetroWindow>
