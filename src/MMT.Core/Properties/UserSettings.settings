@@ -1,0 +1,9 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="MMT.Core.Properties" GeneratedClassName="UserSettings">
+  <Profiles />
+  <Settings>
+    <Setting Name="DefaultInstanceName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft Teams (Default)</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
