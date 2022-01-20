@@ -235,8 +235,6 @@ namespace MMT.UI
 
 		private void MenuItemEdit_OnClick(object sender, RoutedEventArgs e)
 		{
-			if (lstProfiles.SelectedIndex == -1) return;
-
 			var menuItem = sender as MenuItem;
 			if (menuItem == null) return;
 
@@ -252,8 +250,6 @@ namespace MMT.UI
 
 		private async void MenuItemDelete_OnClick(object sender, RoutedEventArgs e)
 		{
-			if (lstProfiles.SelectedIndex < 1) return;
-
 			var menuItem = sender as MenuItem;
 			if (menuItem == null) return;
 
