@@ -61,6 +61,26 @@
                         </ListBox.ItemTemplate>
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                <Setter Property="ContextMenu">
+                                    <Setter.Value>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit">
+                                                <MenuItem.Style>
+                                                    <Style TargetType="MenuItem">
+                                                        <EventSetter Event="Click" Handler="MenuItemEdit_OnClick"/>
+                                                    </Style>
+                                                </MenuItem.Style>
+                                            </MenuItem>
+                                            <MenuItem Header="Delete" IsEnabled="{Binding IsDeletable}">
+                                                <MenuItem.Style>
+                                                    <Style TargetType="MenuItem">
+                                                        <EventSetter Event="Click" Handler="MenuItemDelete_OnClick"/>
+                                                    </Style>
+                                                </MenuItem.Style>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </Setter.Value>
+                                </Setter>
                                 <EventSetter Event="MouseDoubleClick" Handler="LstProfiles_MouseDoubleClick"/>
                             </Style>
                         </ListBox.ItemContainerStyle>
@@ -92,14 +112,31 @@
                     </Grid>
                 </Grid>
             </TabItem>
+            <TabItem Name="tbiEditProfile" Header="Edit profile">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical" Margin="10,36">
+                        <TextBlock Text="Profile name"/>
+                        <TextBox Name="txtProfileNameEdit"/>
+                    </StackPanel>
+                    <Grid Grid.Row="1" Margin="5" Height="Auto">
+                        <Button Name="btnCancelEdit" HorizontalAlignment="Left" Width="100" Content="Cancel" Click="BtnCancelEdit_Click"/>
+                        <Button Name="btnSaveEdit" HorizontalAlignment="Right" Width="100" Content="Save" Click="BtnSaveEdit_Click"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
         </TabControl>
+        
 
         <tb:TaskbarIcon x:Name="_tray" 
-                            Icon="{x:Static local:Resource.Taskbar}" 
-                            ToolTipText="{x:Static core:StaticResources.AppName}" 
-                            Visibility="Collapsed" 
-                            TrayMouseDoubleClick="TrayMouseDoubleClick" 
-                            ContextMenu="{StaticResource trayContextMenu}" 
-            />
+                        Icon="{x:Static local:Resource.Taskbar}" 
+                        ToolTipText="{x:Static core:StaticResources.AppName}" 
+                        Visibility="Collapsed" 
+                        TrayMouseDoubleClick="TrayMouseDoubleClick" 
+                        ContextMenu="{StaticResource trayContextMenu}" 
+        />
     </Grid>
 </mah:MetroWindow>

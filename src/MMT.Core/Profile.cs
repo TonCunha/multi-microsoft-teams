@@ -17,5 +17,13 @@
             Name = name;
             Path = path;
         }
+
+        public bool IsDeletable
+        {
+	        get
+	        {
+		        return !IsDefault;
+	        }
+        }
     }
 }
