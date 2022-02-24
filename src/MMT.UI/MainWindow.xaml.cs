@@ -20,9 +20,9 @@ namespace MMT.UI
 		private readonly ProfileManager _profileManager;
 		private readonly TeamsLauncher _teamsLauncher;
 		private readonly RegistryManager _registryManager;
-		private Profile editProfile;
+		private Profile? editProfile;
 		
-		private UserSettings _userSettings;
+		private UserSettings? _userSettings;
 		public UserSettings UserSettings { get => _userSettings ??= UserSettings.Init(); }
 
 		public MainWindow()
@@ -79,7 +79,7 @@ namespace MMT.UI
 
 		private void LaunchAllEnabledProfiles()
         {
-			Thread thread = new Thread(() =>
+			Thread thread = new(() =>
 			{
 				foreach (Profile item in lstProfiles.Items.OfType<Profile>().Where((p) => p.IsEnabled))
 				{
@@ -97,7 +97,7 @@ namespace MMT.UI
 			{
 				Show();
 				WindowState = WindowState.Minimized;
-				MetroWindow_StateChanged(null, null);
+				MetroWindow_StateChanged(this, EventArgs.Empty);
 				LaunchAllEnabledProfiles();
 			}
 		}
@@ -181,12 +181,11 @@ namespace MMT.UI
 			{
 				for (int i = lstProfiles.SelectedItems.Count - 1; i >= 0; i--)
 				{
-					var selectedProfile = lstProfiles.SelectedItems[i] as Profile;
-					if (selectedProfile != null)
-					{
-						await RemoveProfile(selectedProfile);
-					}
-				}
+                    if (lstProfiles.SelectedItems[i] is Profile selectedProfile)
+                    {
+                        await RemoveProfile(selectedProfile);
+                    }
+                }
 			}
 		}
 
@@ -240,13 +239,9 @@ namespace MMT.UI
 
 		private void MenuItemEdit_OnClick(object sender, RoutedEventArgs e)
 		{
-			var menuItem = sender as MenuItem;
-			if (menuItem == null) return;
+            if (sender is not MenuItem menuItem || menuItem.DataContext is not Profile profile) return;
 
-			var profile = menuItem.DataContext as Profile;
-			if (profile == null) return;
-
-			editProfile = profile;
+            editProfile = profile;
 			txtProfileNameEdit.Text = profile.Name;
 
 			ChangeTabVisibility(TabEnum.EditProfile);
@@ -255,15 +250,9 @@ namespace MMT.UI
 
 		private async void MenuItemDelete_OnClick(object sender, RoutedEventArgs e)
 		{
-			var menuItem = sender as MenuItem;
-			if (menuItem == null) return;
-
-			var profile = menuItem.DataContext as Profile;
-			if (profile != null)
-			{
-				await RemoveProfile(profile);
-			}
-		}
+            if (sender is not MenuItem menuItem || menuItem.DataContext is not Profile profile) return;
+            await RemoveProfile(profile);
+        }
 
 		private void BtnCancelEdit_Click(object sender, RoutedEventArgs e)
 		{
@@ -272,9 +261,16 @@ namespace MMT.UI
 
 		private void BtnSaveEdit_Click(object sender, RoutedEventArgs e)
 		{
+			
 			try
 			{
-				_profileManager.Update(editProfile, txtProfileNameEdit.Text);
+				if (editProfile == null)
+				{
+					MessageHelper.Info("An error occured, please try again.");
+				} else
+                {
+					_profileManager.Update(editProfile, txtProfileNameEdit.Text);
+				}
 				ChangeTabVisibility(TabEnum.Main);
 			}
 			catch (Exception ex)

@@ -1,11 +1,12 @@
 ﻿using MMT.Core;
+using System.Text.Json.Serialization;
 using System.Windows;
 
 namespace MMT.UI
 {
     public class UserSettings : DependencyObject
     {
-        private static readonly SettingsManager<UserSettings> _userSettingsManager = new SettingsManager<UserSettings>(StaticResources.UserSettingsFileName);
+        private static readonly SettingsManager<UserSettings> _userSettingsManager = new(StaticResources.UserSettingsFileName);
 
         /// <summary>
         /// Gets or sets if all existing, enabled Teams profiles should be launched on Application start.
@@ -18,24 +19,20 @@ namespace MMT.UI
 
         // Using a DependencyProperty as the backing store for LaunchAllOnStartup.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LaunchAllOnStartupProperty =
-            DependencyProperty.Register("LaunchAllOnStartup", typeof(bool), typeof(UserSettings));
+            DependencyProperty.Register(nameof(LaunchAllOnStartup), typeof(bool), typeof(UserSettings));
 
-        public UserSettings() { }
-
-        public static UserSettings Init()
+        [JsonConstructor]
+        public UserSettings(bool launchAllOnStartup)
         {
-            return _userSettingsManager.LoadSettings();
+            LaunchAllOnStartup = launchAllOnStartup;
         }
+
+        public static UserSettings Init() => _userSettingsManager.LoadSettings() ?? new UserSettings(false);
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
             base.OnPropertyChanged(e);
             _userSettingsManager.SaveSettings(this);
-        }
-
-        protected override bool ShouldSerializeProperty(DependencyProperty dp)
-        {
-            return dp.OwnerType == GetType();
         }
     }
 }
