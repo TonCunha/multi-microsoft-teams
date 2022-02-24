@@ -21,6 +21,9 @@ namespace MMT.UI
 		private readonly TeamsLauncher _teamsLauncher;
 		private readonly RegistryManager _registryManager;
 		private Profile editProfile;
+		
+		private UserSettings _userSettings;
+		public UserSettings UserSettings { get => _userSettings ??= UserSettings.Init(); }
 
 		public MainWindow()
 		{
@@ -31,6 +34,7 @@ namespace MMT.UI
 			DataContext = _profileManager;
 			ChangeTabVisibility(TabEnum.Main);
 			AutoStartCheck();
+			AutoLaunchCheck();
 		}
 
 		private void ChangeTabVisibility(TabEnum tab)
@@ -73,6 +77,18 @@ namespace MMT.UI
 			MetroWindow_StateChanged(sender, e);
 		}
 
+		private void LaunchAllEnabledProfiles()
+        {
+			Thread thread = new Thread(() =>
+			{
+				foreach (Profile item in lstProfiles.Items.OfType<Profile>().Where((p) => p.IsEnabled))
+				{
+					_teamsLauncher.Start(item);
+				}
+			});
+			thread.Start();
+		}
+
 		private void AutoStartCheck()
 		{
 			chkAutoStart.IsChecked = _registryManager.IsApplicationInStartup(StaticResources.AppName);
@@ -82,18 +98,7 @@ namespace MMT.UI
 				Show();
 				WindowState = WindowState.Minimized;
 				MetroWindow_StateChanged(null, null);
-
-				Thread thread = new Thread(() =>
-				{
-					foreach (Profile item in lstProfiles.Items.OfType<Profile>())
-					{
-						if (!item.IsDisabled)
-						{
-							_teamsLauncher.Start(item);
-						}
-					}
-				});
-				thread.Start();
+				LaunchAllEnabledProfiles();
 			}
 		}
 
@@ -278,6 +283,15 @@ namespace MMT.UI
 				txtProfileName.Focus();
 			}
 		}
-	}
+
+		private void AutoLaunchCheck()
+        {
+			if (UserSettings.LaunchAllOnStartup)
+            {
+				Show();
+				LaunchAllEnabledProfiles();
+            }
+        }
+    }
 }
 

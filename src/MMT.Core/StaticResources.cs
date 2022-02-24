@@ -59,5 +59,9 @@ namespace MMT.Core
                 return "Multi MS Teams";
             }
         }
+
+        public static string AppDataFolderName => "MultiTeams";
+
+        public static string UserSettingsFileName => "UserSettings.json";
     }
 }
