@@ -1,4 +1,5 @@
-﻿<mah:MetroWindow  x:Class="MMT.UI.MainWindow"
+﻿<mah:MetroWindow x:Class="MMT.UI.MainWindow"
+        x:Name="MetroWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -90,7 +91,8 @@
                         <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
                             <Button Name="btnLaunchTeams"  Width="100" Content="Launch Teams" Click="BtnLaunchTeams_Click" IsEnabled="{Binding ElementName=lstProfiles, Path=SelectedItems.Count}">
                             </Button>
-                            <CheckBox Name="chkAutoStart" Margin="8,0,0,0" HorizontalAlignment="Left" Content="Auto start" Click="ChkAutoStart_Click"/>
+                            <CheckBox Name="chkAutoStart" Margin="6,0,0,0" HorizontalAlignment="Left" Content="Auto start" Click="ChkAutoStart_Click"/>
+                            <CheckBox Name="chkAutoLaunch" Margin="6,0,0,0" HorizontalAlignment="Right" Content="Auto launch" IsChecked="{Binding UserSettings.LaunchAllOnStartup, ElementName=MetroWindow}"/>
                         </StackPanel>
                         <Button Name="btnNewProfile" HorizontalAlignment="Right" Width="100" Content="New profile" Click="BtnNewProfile_Click"/>
                     </Grid>

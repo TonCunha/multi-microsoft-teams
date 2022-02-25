@@ -9,7 +9,8 @@ namespace MMT.Core
 
         public RegistryManager()
         {
-            _registryKey = Registry.CurrentUser.OpenSubKey(StaticResources.StartupApplications, true);
+            _registryKey = Registry.CurrentUser.OpenSubKey(StaticResources.StartupApplications, true)
+                ?? Registry.CurrentUser.CreateSubKey(StaticResources.StartupApplications, true);
         }
 
         public bool IsApplicationInStartup(string name)
