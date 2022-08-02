@@ -47,11 +47,12 @@ namespace MMT.UI
                 tbcMain.SelectedItem = tbiNewProfile;
             }
         }
+        
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem menuItem && menuItem.DataContext is Profile profile)
             {
-                _teamsLauncher.Start(profile);
+                _teamsLauncher.UserStart(profile);
             }
         }
 
@@ -78,7 +79,7 @@ namespace MMT.UI
                     {
                         if (!item.IsDisabled)
                         {
-                            _teamsLauncher.Start(item);
+                            _teamsLauncher.AutoStart(item);
                         }
                     }
                 });
@@ -149,7 +150,7 @@ namespace MMT.UI
                         .ToList()
                         .ForEach((item) =>
                     {
-                        _teamsLauncher.Start(item);
+                        _teamsLauncher.AutoStart(item);
                     });
                 }
             }
@@ -206,7 +207,8 @@ namespace MMT.UI
                 {
                     _profileManager.Enable(selectedProfile);
                 }
-                else if (await MessageHelper.Confirm($"Disable profile?\nProfile name: {selectedProfile.Name}") == MessageDialogResult.Affirmative)
+                else if (await MessageHelper.Confirm($"Disable profile?\nProfile name: {selectedProfile.Name}") ==
+                         MessageDialogResult.Affirmative)
                 {
                     _profileManager.Disable(selectedProfile);
                 }

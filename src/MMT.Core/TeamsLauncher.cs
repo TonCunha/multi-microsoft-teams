@@ -7,7 +7,11 @@ namespace MMT.Core
 {
     public class TeamsLauncher
     {
-        public void Start(Profile profile)
+        private string UpdatePath =>  Path.Combine(StaticResources.UserProfile, StaticResources.UpdateExe);
+
+        private string TeamsPath => Path.Combine(StaticResources.UserProfile, StaticResources.LaunchExe);
+        
+        private void Start(Profile profile, Action<bool, string> teamsLaunchFunc, bool inBackground, string arguments = "")
         {
             if (string.IsNullOrWhiteSpace(profile.Name))
             {
@@ -22,31 +26,74 @@ namespace MMT.Core
                 Environment.SetEnvironmentVariable("USERPROFILE", mmtUserProfilePath);
             }
 
-            string updateExePath = Path.Combine(StaticResources.UserProfile, StaticResources.UpdateExe);
-            UpdateProfileAndStartTeams(updateExePath);
+            teamsLaunchFunc(inBackground, arguments);
 
             Environment.SetEnvironmentVariable("USERPROFILE", originalUserProfilePath);
         }
 
-        private void UpdateProfileAndStartTeams(string updatePath)
+        public void AutoStart(Profile profile)
         {
+            Start(profile, UpdateProfileAndStartTeams, true);
+        }
+        
+        public void UserStart(Profile profile)
+        {
+            Start(profile, UpdateProfileAndStartTeams, false);
+        }
+        
+        public void OpenLink(Profile profile, string link)
+        {
+            Start(profile, StartTeams, false, link);
+        }
+
+        private void UpdateProfileAndStartTeams(bool inBackground, string arguments = "")
+        {
+            string fullArguments = "--processStart Teams.exe ";
+            if (inBackground || !String.IsNullOrEmpty(arguments))
+            {
+                fullArguments += "--process-start-args \"";
+                if (inBackground)
+                {
+                    fullArguments += "--system-initiated ";
+                }
+
+                if (!String.IsNullOrEmpty(arguments))
+                {
+                    fullArguments += arguments;
+                }
+
+                fullArguments += "\"";
+            }
             var updateExeProcess = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = updatePath,
-                    Arguments = "--processStart Teams.exe",
+                    FileName = UpdatePath,
+                    Arguments = fullArguments,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
                 }
             };
-
             updateExeProcess.Start();
-            while (!updateExeProcess.StandardOutput.EndOfStream) { }
-            updateExeProcess.WaitForExit();
         }
 
+        private void StartTeams(bool inBackground, string arguments = "")
+        {
+            var updateExeProcess = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = TeamsPath,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true,
+                    Arguments = arguments +  (inBackground ? " \"--system-initiated\"" : "")
+                }
+            };
+            updateExeProcess.Start();
+        }
+        
         public void CloseAllInstances()
         {
             var process = new Process
