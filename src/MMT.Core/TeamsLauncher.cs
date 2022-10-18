@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading;
 
 namespace MMT.Core
@@ -48,28 +49,28 @@ namespace MMT.Core
 
         private void UpdateProfileAndStartTeams(bool inBackground, string arguments = "")
         {
-            string fullArguments = "--processStart Teams.exe ";
+            var fullArguments = new StringBuilder("--processStart Teams.exe ");
             if (inBackground || !String.IsNullOrEmpty(arguments))
             {
-                fullArguments += "--process-start-args \"";
+                fullArguments.Append("--process-start-args \"");
                 if (inBackground)
                 {
-                    fullArguments += "--system-initiated ";
+                    fullArguments.Append("--system-initiated ");
                 }
 
                 if (!String.IsNullOrEmpty(arguments))
                 {
-                    fullArguments += arguments;
+                    fullArguments.Append(arguments);
                 }
 
-                fullArguments += "\"";
+                fullArguments.Append("\"");
             }
             var updateExeProcess = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = UpdatePath,
-                    Arguments = fullArguments,
+                    Arguments = fullArguments.ToString(),
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
