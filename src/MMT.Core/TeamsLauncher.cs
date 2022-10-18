@@ -11,7 +11,9 @@ namespace MMT.Core
         private string UpdatePath =>  Path.Combine(StaticResources.UserProfile, StaticResources.UpdateExe);
 
         private string TeamsPath => Path.Combine(StaticResources.UserProfile, StaticResources.LaunchExe);
-        
+
+        private const string _systemInstalledTag = "--system-initiated";
+
         private void Start(Profile profile, Action<bool, string> teamsLaunchFunc, bool inBackground, string arguments = "")
         {
             if (string.IsNullOrWhiteSpace(profile.Name))
@@ -55,7 +57,7 @@ namespace MMT.Core
                 fullArguments.Append("--process-start-args \"");
                 if (inBackground)
                 {
-                    fullArguments.Append("--system-initiated ");
+                    fullArguments.Append(_systemInstalledTag + " ");
                 }
 
                 if (!String.IsNullOrEmpty(arguments))
@@ -89,7 +91,7 @@ namespace MMT.Core
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true,
-                    Arguments = arguments +  (inBackground ? " \"--system-initiated\"" : "")
+                    Arguments = arguments +  (inBackground ? $" \"{_systemInstalledTag}\"" : "")
                 }
             };
             updateExeProcess.Start();
