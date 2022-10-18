@@ -31,7 +31,6 @@ namespace MMT.UI
             {
                 NotFirstAppOnStart(e);
             }
-            
         }
 
         private void OpenLink(string link)
