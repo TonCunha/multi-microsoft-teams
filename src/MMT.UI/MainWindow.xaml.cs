@@ -146,9 +146,9 @@ namespace MMT.UI
                 if (lstProfiles.SelectedItems?.Count > 0)
                 {
                     lstProfiles.SelectedItems.OfType<Profile>()
-                        .Where((item) => !item.IsDisabled)
+                        .Where(item => !item.IsDisabled)
                         .ToList()
-                        .ForEach((item) =>
+                        .ForEach(item =>
                     {
                         _teamsLauncher.AutoStart(item);
                     });
@@ -201,17 +201,24 @@ namespace MMT.UI
 
         private async void LstProfiles_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ListBoxItem item && item.DataContext is Profile selectedProfile)
+            var item = sender as ListBoxItem;
+            var selectedProfile = item?.DataContext as Profile;
+            if (selectedProfile is null)
             {
-                if (selectedProfile.IsDisabled)
-                {
-                    _profileManager.Enable(selectedProfile);
-                }
-                else if (await MessageHelper.Confirm($"Disable profile?\nProfile name: {selectedProfile.Name}") ==
-                         MessageDialogResult.Affirmative)
-                {
-                    _profileManager.Disable(selectedProfile);
-                }
+                return;
+            }
+
+            if (selectedProfile.IsDisabled)
+            {
+                _profileManager.Enable(selectedProfile);
+                return;
+            }
+
+            var messageDialogResult = await MessageHelper.Confirm($"Disable profile?\nProfile name: {selectedProfile.Name}");
+            if (messageDialogResult == MessageDialogResult.Affirmative)
+            {
+                _profileManager.Disable(selectedProfile);
+                return;
             }
         }
     }

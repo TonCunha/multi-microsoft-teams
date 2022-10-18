@@ -42,24 +42,21 @@ namespace MMT.UI
 
         private void FirstAppOnStart(StartupEventArgs e)
         {
-            var thread = new Thread(
-                () =>
-                {
-                    using var server = new NamedPipeServerStream(UniquePipeName, PipeDirection.In);
-                    while (true)
-                    {
-                        server.WaitForConnection();
-                        using var reader = new StreamReader(server);
-                        var link = reader.ReadToEnd();
-                        Current.Dispatcher.Invoke(delegate
-                        {
-                            OpenLink(link);
-                        });
-                    }
-                })
+            var thread = new Thread(() =>
             {
-                IsBackground = true
-            };
+                using var server = new NamedPipeServerStream(UniquePipeName, PipeDirection.In);
+                while (true)
+                {
+                    server.WaitForConnection();
+                    using var reader = new StreamReader(server);
+                    var link = reader.ReadToEnd();
+                    Current.Dispatcher.Invoke(delegate
+                    {
+                        OpenLink(link);
+                    });
+                }
+            });
+            thread.IsBackground = true;
 
             thread.Start();
                 

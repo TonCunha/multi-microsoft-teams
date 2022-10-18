@@ -42,9 +42,9 @@ namespace MMT.UI
                 if (lstProfiles.SelectedItems?.Count > 0)
                 {
                     lstProfiles.SelectedItems.OfType<Profile>()
-                        .Where((item) => !item.IsDisabled)
+                        .Where(item => !item.IsDisabled)
                         .ToList()
-                        .ForEach((item) =>
+                        .ForEach(item =>
                     {
                         _teamsLauncher.OpenLink(item, _link);
                         Close();
@@ -59,7 +59,11 @@ namespace MMT.UI
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
-            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+            var processInfo = new ProcessStartInfo(e.Uri.AbsoluteUri) 
+            { 
+                UseShellExecute = true 
+            };
+            Process.Start(processInfo);
         }
     }
 }
