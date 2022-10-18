@@ -35,7 +35,7 @@ namespace MMT.UI
 
         private void OpenLink(string link)
         {
-            var chooseAppForLink = new ChooseAppForLink(link);
+            var chooseAppForLink = new ChooseProfileForLink(link);
             chooseAppForLink.Owner = null;
             chooseAppForLink.Show();
         }

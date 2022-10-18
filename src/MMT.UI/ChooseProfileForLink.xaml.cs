@@ -4,24 +4,20 @@ using MahApps.Metro.Controls.Dialogs;
 using MMT.Core;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Navigation;
 
 namespace MMT.UI
 {
-    public partial class ChooseAppForLink : MetroWindow
+    public partial class ChooseProfileForLink : MetroWindow
     {
         private readonly ProfileManager _profileManager;
         private readonly TeamsLauncher _teamsLauncher;
         private readonly string _link; 
 
-        public ChooseAppForLink(string link)
+        public ChooseProfileForLink(string link)
         {
             InitializeComponent();
             _profileManager = new ProfileManager();
