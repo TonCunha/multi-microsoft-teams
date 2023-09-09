@@ -43,6 +43,14 @@ namespace MMT.Core
                 return @"AppData\Local\Microsoft\Teams\Update.exe";
             }
         }
+        
+        public static string LaunchExe
+        {
+            get
+            {
+                return @"AppData\Local\Microsoft\Teams\current\Teams.exe";
+            }
+        }
 
         public static string StartupApplications
         {
